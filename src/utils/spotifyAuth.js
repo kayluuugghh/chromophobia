@@ -9,6 +9,6 @@ export function requestAuthorization() {
     url += "&response_type=code";
     url += "&redirect_uri=" + encodeURIComponent(redirectURI);
     url += "&show_dialogue=true";
-    url += "&scope=user-read-private user-read-email"
+    url += "&scope=user-read-private user-read-email user-read-playback-state user-modify-playback-state user-read-currently-playing app-remote-control streaming"
     window.location.href = url;
 }
