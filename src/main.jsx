@@ -6,15 +6,15 @@ import './index.css'
 import Login from './Login.jsx';
 import Home from './Home.jsx';
 import Team from './Team.jsx';
-
+import Callback from './Callback'
+;
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/callback" element={<Login />} />
-        <Route path="/home" element={<Home />} />
         <Route path="/team" element={<Team />} />
+        <Route path="/callback" element={<Callback />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
