@@ -4,22 +4,21 @@ import './Navbar.css';
 import { Link } from "react-router-dom";
 
 function NavBar() {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setMenuOpen] = useState(false);
     const [isAboutOpen, setIsAboutOpen] = useState(false); // modal state
-    const toggleMenu = () => {setIsOpen(!isOpen);};
     const handleCustomization = () => {alert("Customization options coming soon.");};
-    const toggleAbout = () => {setIsAboutOpen(!isAboutOpen)
+    const toggleAbout = () => {setIsAboutOpen(!isAboutOpen)};
     const handleMouseEnter = () => setMenuOpen(true);
-    const handleMouseLeave = () => setMenuOpen(false);;}
+    const handleMouseLeave = () => setMenuOpen(false);
 
     return (
         <>
         <nav className="navbar">
             <div className="nav-container" 
-                onMouseEnter={() => setIsOpen(true)} 
-                onMouseLeave={() => setIsOpen(false)}>
+                onMouseEnter={handleMouseEnter} 
+                onMouseLeave={handleMouseLeave}>
                 {/* 3 stacked bars to create hamburger icon */}
-                <div className= "hamburger" onClick={toggleMenu}>
+                <div className= "hamburger">
                     <div className="bar"></div>
                     <div className="bar"></div>
                     <div className="bar"></div>
