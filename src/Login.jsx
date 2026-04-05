@@ -4,9 +4,6 @@ import { loginWithSpotify } from './utils/spotifyAuth.js'
 import NavBar from './assets/Navbar.jsx';
 import './Login.css'
 
-
-
-
 function Login() {
     const navigate = useNavigate();
 
@@ -19,7 +16,6 @@ function Login() {
 
     return (
         <>
-            <NavBar></NavBar>
             <h1>Chromophobia</h1>
             <button onClick={loginWithSpotify} className="login-button">
                 Login with Spotify
