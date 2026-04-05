@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import { loginWithSpotify } from './utils/spotifyAuth.js'
 import NavBar from './assets/Navbar.jsx';
 import './Login.css'
+import Follower from './assets/Follower.jsx';
 
 
 
@@ -20,6 +21,7 @@ function Login() {
     return (
         <>
             <NavBar></NavBar>
+            <Follower/>
             <h1>Chromophobia</h1>
             <button onClick={loginWithSpotify} className="login-button">
                 Login with Spotify
