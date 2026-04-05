@@ -1,4 +1,3 @@
-
 import NavBar from './assets/Navbar.jsx';
 
 function Home() {

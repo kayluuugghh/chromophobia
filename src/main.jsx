@@ -6,13 +6,15 @@ import './index.css'
 import Login from './Login.jsx';
 import Home from './Home.jsx';
 import Team from './Team.jsx';
-import Callback from './Callback'
-;
+import Callback from './Callback';
+import SpotifyPlayer from './SpotifyPlayer.jsx';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/home" element={<SpotifyPlayer />} />
         <Route path="/team" element={<Team />} />
         <Route path="/callback" element={<Callback />} />
       </Routes>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import NavBar from './assets/Navbar';
 
 // ─── Config ───────────────────────────────────────────────────────
 const CLIENT_ID   = import.meta.env.VITE_CLIENT_ID;
@@ -244,7 +245,8 @@ function formatMs(ms) {
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
 // ─── Component ────────────────────────────────────────────────────
-export default function SpotifyPlayer({ token }) {
+export default function SpotifyPlayer({ token: propToken}) {
+  const token = propToken || localStorage.getItem('spotify_token');
   const { player, deviceId, state, sdkReady, error } = useSpotifyPlayer(token);
   const { togglePlay, nextTrack, prevTrack, seek, setVolume, playUri } =
     usePlaybackControls(player, token, deviceId);
@@ -271,6 +273,7 @@ export default function SpotifyPlayer({ token }) {
 
   return (
     <div>
+      <NavBar/>
 
       {/* Track info */}
       <div>
