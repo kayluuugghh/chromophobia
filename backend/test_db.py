@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def test_insert_token():
     """
-    Insert a test Spotify token document into the spotify_tokens collection and print the result.
+    Spotify token collection test: Inserts a test token document and prints the result.
     """
     try:
         tokens_collection = init_spotify_tokens_collection()
