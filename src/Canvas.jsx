@@ -25,7 +25,6 @@ export default function WebGLCanvas() {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: true,
-        preferred
       });
 
       const audioTracks = stream.getAudioTracks();

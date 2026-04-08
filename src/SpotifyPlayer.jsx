@@ -278,7 +278,7 @@ export default function SpotifyPlayer({ token: propToken}) {
       {/* Track info */}
       <div>
         {track?.album?.images?.[0]?.url && (
-          <img src={track.album.images[0].url} alt="album" width={64} height={64} />
+          <img src={track.album.images[0].url} alt="album" width={500} height={500} />
         )}
         <p><strong>{track?.name ?? 'No track playing'}</strong></p>
         <p>{track?.artists?.map(a => a.name).join(', ') ?? '—'}</p>
@@ -317,7 +317,7 @@ export default function SpotifyPlayer({ token: propToken}) {
         />
       </div>
 
-      <div>
+      {/* <div>
         <input
           placeholder="spotify:track:..."
           value={uriInput}
@@ -325,12 +325,12 @@ export default function SpotifyPlayer({ token: propToken}) {
           onKeyDown={e => e.key === 'Enter' && playUri(uriInput)}
         />
         <button onClick={() => playUri(uriInput)}>Play URI</button>
-      </div>
+      </div> */}
 
       <hr />
 
 
-      <div>
+      {/* <div>
         <button onClick={capturing ? stopCapture : startCapture}>
           {capturing ? 'Stop Audio Capture' : 'Capture Tab Audio'}
         </button>
@@ -370,7 +370,7 @@ export default function SpotifyPlayer({ token: propToken}) {
             )}
           </div>
         )}
-      </div>
+      </div> */}
 
     </div>
   );
