@@ -1,6 +1,9 @@
-#webglcanvas {
-    border: solid;
-    width: 100vw;
-    height: 100 vh;
-    
+.canvasContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+#glCanvas{
+    width: 50vw;
+    height: 50vh;
 }
