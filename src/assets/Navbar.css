@@ -27,6 +27,36 @@
     /* transition: 0.3s; */
 }
 
+@media (prefers-color-scheme: dark) {
+    .hamburger .bar {
+        background-color: white;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .hamburger .bar {
+        background-color: black;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .hamburger:hover {
+        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+    }
+    .hamburger:active {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .hamburger:hover {
+        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
+    }
+    .hamburger:active {
+        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
+    }
+}
+
 /* Navigation links */
 
 .nav-links {
@@ -45,12 +75,13 @@
 
 .nav-links li {
     margin: 0.5rem 0;
+    padding-top: 1rem;
 }
 
 .nav-links li a {
     color: black;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: medium;
     white-space: nowrap;
     cursor: pointer;
     padding: 0.5rem 1rem;
@@ -67,18 +98,80 @@
     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
 }
 
+@media (prefers-color-scheme: dark) {
+    .nav-links li a {
+        color: white;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .nav-links li a {
+        color: black;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .nav-links li a:hover {
+        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+    }
+    .nav-links li a:active {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .nav-links li a:hover {
+        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
+    }
+    .nav-links li a:active {
+        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
+    }
+}
+
 /* Customization Button */
 
 .customize-btn {
     background-color: transparent;
     border: none;
     color: black;
-    font-size: 1.5rem;
+    font-size: 2rem;
     cursor: pointer;
     z-index: 20;
 }
 
+@media (prefers-color-scheme: dark) {
+    .customize-icon {
+        fill: white;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .customize-icon {
+        fill: black;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .customize-icon:hover {
+        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+    }
+    .customize-icon:active {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .customize-icon:hover {
+        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
+    }
+    .customize-icon:active {
+        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
+    }
+}
+
+
 /* About Overlay */
+
 .modal-overlay {
     position: fixed;
     top: 0;
