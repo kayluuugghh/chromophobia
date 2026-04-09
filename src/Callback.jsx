@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import SpotifyPlayer, { loginWithSpotify, getCodeFromUrl, exchangeCodeForToken } from './SpotifyPlayer';
+import SpotifyPlayer from './SpotifyPlayer';
+import { loginWithSpotify, getCodeFromUrl, exchangeCodeForToken, getValidToken, logout } from './utils/spotifyAuth.js';
 
 export default function Callback() {
   const [token, setToken]     = useState(() => localStorage.getItem('spotify_token'));
@@ -18,7 +19,7 @@ export default function Callback() {
 
       exchangeCodeForToken(code)
         .then(accessToken => {
-          localStorage.setItem('spotify_token', accessToken);
+          // spotifyAuth.js already saves token, refresh token, and expiry to localStorage
           setToken(accessToken);
         })
         .catch(err => {
@@ -29,8 +30,22 @@ export default function Callback() {
     }
   }, []);
 
+  // Refresh the token on mount if it's expired (e.g. user returns after a long time)
+  useEffect(() => {
+    if (token) {
+      getValidToken()
+        .then(validToken => {
+          if (validToken !== token) setToken(validToken);
+        })
+        .catch(() => {
+          // Refresh failed — force re-login
+          handleLogout();
+        });
+    }
+  }, []);
+
   const handleLogout = () => {
-    localStorage.clear();
+    logout();
     setToken(null);
     setError(null);
   };
