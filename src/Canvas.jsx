@@ -161,7 +161,7 @@ export default function Canvas() {
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // MAIN SHADER — modes 0–4
+    // MAIN SHADER — modes 0–3
     // ════════════════════════════════════════════════════════════════════
     const mainFsSrc = `
       #define PI      3.14159265
@@ -201,11 +201,6 @@ export default function Canvas() {
       float fbm(vec2 p) {
         float v=0.0,a=0.5;
         for(int k=0;k<5;k++){v+=a*noise(p);p*=2.1;a*=0.5;}
-        return v;
-      }
-      float fbm3(vec2 p) {
-        float v=0.0,a=0.5;
-        for(int k=0;k<3;k++){v+=a*noise(p);p*=2.1;a*=0.5;}
         return v;
       }
       vec3 hsv2rgb(vec3 c) {
@@ -349,48 +344,8 @@ export default function Canvas() {
           }
           color+=lineAccum+starAccum;
 
-        // ── Mode 2: Fluid Lava Lamp ─────────────────────────────────
+        // ── Mode 2: Aurora Plasma ───────────────────────────────────
         }else if(u_mode==2){
-          vec2 p=uv;
-          p.x*=u_res.x/u_res.y;
-          vec2 drift=vec2(u_velX,u_velY)*0.3;
-          float viscosity=1.0-u_energy*0.5;
-          float baseSpeed=0.018*viscosity;
-          vec2 p1=p*1.8+drift+vec2(u_phase*0.7,u_phase*0.4);
-          float density1=fbm(p1+vec2(sin(u_time*baseSpeed)*0.4,u_time*baseSpeed*2.0));
-          vec2 p2=p*2.6-drift*0.7+vec2(-u_phase*0.5,u_phase*0.3);
-          float density2=fbm3(p2+vec2(u_time*baseSpeed*1.3,sin(u_time*baseSpeed*0.8)*0.3));
-          vec2 p3=p*4.2+vec2(u_velX*0.5,u_phase*1.1+u_time*baseSpeed*3.0);
-          float density3=fbm3(p3);
-          float buoyancy=(density1*0.55+density2*0.30+density3*0.15)-0.5;
-          float rise=buoyancy*(0.3+u_rms*0.7);
-          vec2 bp=p+vec2(u_velX*0.1,-rise*0.15);
-          float bd=fbm(bp*1.8+vec2(u_phase*0.7,u_phase*0.4+u_time*baseSpeed*2.0))*0.55
-                  +fbm3(bp*2.6+vec2(u_time*baseSpeed*1.3,0.0))*0.30
-                  +fbm3(bp*4.2+vec2(0.0,u_phase*1.1+u_time*baseSpeed*3.0))*0.15;
-          float mfccD=0.0;
-          for(int k=0;k<13;k++){
-            float fk=float(k);
-            float blobY=fk/13.0;
-            float blobX=0.5+sin(u_time*baseSpeed*0.5+fk*0.8)*0.35;
-            float blob=exp(-(abs(uv.y-blobY)*abs(uv.y-blobY)*18.0
-                            +abs(uv.x-blobX)*abs(uv.x-blobX)*8.0));
-            mfccD+=getMFCC(k)*blob*0.25;
-          }
-          float temp=clamp(bd+mfccD,0.0,1.0);
-          float hue=mix(0.05+temp*0.08, 0.50+temp*0.12, u_centroid);
-          float brt=pow(temp,1.6)*(0.85+u_rms*0.4);
-          vec3 coreColor=mix(hsv2rgb(vec3(hue,0.8+0.2*sin(temp*PI),brt)),
-                             vec3(1.0,0.97,0.92),pow(temp,4.0)*0.6);
-          float dx2=fbm((bp+vec2(0.005,0))*1.8)-fbm((bp-vec2(0.005,0))*1.8);
-          float dy2=fbm((bp+vec2(0,0.005))*1.8)-fbm((bp-vec2(0,0.005))*1.8);
-          float shimmer=smoothstep(0.3,0.8,length(vec2(dx2,dy2))*80.0)*0.25*(0.5+u_energy*0.5);
-          color=hsv2rgb(vec3(fract(hue+0.5),0.6,0.03+u_energy*0.02))
-               +coreColor+hsv2rgb(vec3(fract(hue+0.08),0.4,shimmer));
-          color*=1.0-smoothstep(0.3,0.9,length((uv-0.5)*vec2(1.0,1.2)));
-
-        // ── Mode 3: Aurora Plasma ───────────────────────────────────
-        }else if(u_mode==3){
           vec2 p=(uv-0.5);
           p.x*=u_res.x/u_res.y;
           float hueShift=u_mfcc[0]*0.15+u_mfcc[1]*0.08+u_mfcc[2]*0.05;
@@ -411,8 +366,8 @@ export default function Canvas() {
                              0.75+u_rms*0.25,clamp(brt,0.0,1.0)));
           color*=1.0-smoothstep(0.5,1.2,length(p*vec2(0.9,1.3)));
 
-        // ── Mode 4: Ferrofluid ──────────────────────────────────────
-        }else if(u_mode==4){
+        // ── Mode 3: Ferrofluid ──────────────────────────────────────
+        }else if(u_mode==3){
           vec2 asp=vec2(u_res.x/u_res.y,1.0);
           vec2 p=uv*asp;
 
@@ -690,14 +645,6 @@ export default function Canvas() {
       const energy=Math.min(f.energy/100,1);
       const rms=Math.min(f.rms*5,1);
 
-      // ── Fluid state ───────────────────────────────────────────────
-      const viscDecay=0.92-energy*0.15;
-      f.fluidVelX=Math.max(-0.08,Math.min(0.08,
-        f.fluidVelX*viscDecay+(Math.sin(t*0.0007)*0.01+bass*0.05)*dt));
-      f.fluidVelY=Math.max(-0.08,Math.min(0.08,
-        f.fluidVelY*viscDecay+(-(0.02+energy*0.08))*dt));
-      f.fluidPhase+=dt*(0.04+energy*0.12);
-
       // ── Ferrofluid pole update ────────────────────────────────────
       const N=6;
       for(let i=0;i<N;i++){
@@ -721,7 +668,8 @@ export default function Canvas() {
 
       const modeNow=mode;
 
-      if(modeNow===5){
+      // mode 4 (RD) is now index 4
+      if(modeNow===4){
         rdFeed+=(0.03+energy*0.04-rdFeed)*0.05;
         rdKill+=(0.055+Math.min(f.zcr/100,1)*0.015-rdKill)*0.05;
 
@@ -770,7 +718,7 @@ export default function Canvas() {
         setCommonUniforms(mainProg);
         gl.uniform1i(gl.getUniformLocation(mainProg,"u_mode"),modeNow);
 
-        if(modeNow===4){
+        if(modeNow===3){
           const poleFlat=new Float32Array(N*2);
           const strFlat=new Float32Array(N);
           for(let i=0;i<N;i++){
@@ -805,16 +753,15 @@ export default function Canvas() {
       {!listening ? (
         <button onClick={startCapture}>Share screen audio</button>
       ) : (
-        <div>
+        <div className="options">
           <p>Capturing system audio via Meyda</p>
           <button onClick={stopCapture}>Stop</button>
           <select value={mode} onChange={e=>setMode(Number(e.target.value))}>
             <option value={0}>Spectrum Analyzer</option>
             <option value={1}>Constellation</option>
-            <option value={2}>Fluid Lava Lamp</option>
-            <option value={3}>Aurora Plasma</option>
-            <option value={4}>Ferrofluid</option>
-            <option value={5}>Cymatics + Reaction-Diffusion</option>
+            <option value={2}>Aurora Plasma</option>
+            <option value={3}>Ferrofluid</option>
+            <option value={4}>Cymatics + Reaction-Diffusion</option>
           </select>
         </div>
       )}

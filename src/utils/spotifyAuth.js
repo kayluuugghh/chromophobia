@@ -1,8 +1,7 @@
 // ─── Config ───────────────────────────────────────────────────────
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;
-const SCOPES = 'streaming user-read-email user-read-private user-modify-playback-state';
-
+const SCOPES = 'streaming user-read-email user-read-private user-modify-playback-state playlist-read-private playlist-read-collaborative';
 // ─── PKCE Helpers ─────────────────────────────────────────────────
 function generateCodeVerifier() {
   const array = new Uint8Array(32);

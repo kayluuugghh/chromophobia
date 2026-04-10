@@ -15,3 +15,8 @@ body{
   justify-content: center; /* horizontal center */
   align-items: center;     /* vertical center */
 }
+
+.options{
+    display: flex;
+    flex-direction: column;
+}
