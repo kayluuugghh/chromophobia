@@ -10,13 +10,229 @@
     height: 70vh;
 }
 
-body{
+body{/
+
+.canvasContainer {
+  transition: box-shadow 1.2s ease;
+}
+
+
+.moodDesc {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: -4px;
+  margin-bottom: 4px;
+  font-style: italic;
+  transition: color 1.2s ease;
+}
+
+
+.moodLabel {
+  transition: color 1.2s ease, text-shadow 1.2s ease;
+}
+
+/* Bar fill glow transition */
+.moodBarFill {
+  transition: width 0.4s ease, background 1s ease, box-shadow 1s ease;
+}
+
+/* Emoji in bar labels */
+.moodBarLabel {
+  min-width: 100px;
+}
+
+/* ── Mood history timeline ─────────────────────────────────────────────── */
+.moodHistory {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #ffffff18;
+}
+
+.moodHistoryTitle {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ffffff44;
+  margin-bottom: 6px;
+}
+
+.moodHistoryList {
   display: flex;
-  justify-content: center; /* horizontal center */
-  align-items: center;     /* vertical center */
+  flex-direction: column;
+  gap: 4px;
+}
+
+.moodHistoryEntry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #ffffff06;
+  transition: opacity 0.5s ease;
+}
+
+.moodHistoryTime {
+  font-size: 0.62rem;
+  color: #ffffff44;
+  font-variant-numeric: tabular-nums;
+  margin-left: 8px;
+}
+
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
 }
 
 .options{
     display: flex;
     flex-direction: column;
+}
+
+
+.canvasContainer {
+  transition: box-shadow 1.2s ease;
+}
+
+.moodDualRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 10px;
+}
+
+.moodPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.moodPanel--instant {
+  padding-right: 10px;
+}
+
+.moodPanel--avg {
+  padding-left: 10px;
+}
+
+.moodPanelDivider {
+  width: 1px;
+  background: #ffffff18;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.moodPanelTitle {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ffffff44;
+  margin-bottom: 3px;
+}
+
+
+.moodLabel--small {
+  font-size: 1.1rem !important;
+}
+
+.moodWindowNote {
+  font-size: 0.58rem;
+  color: #ffffff33;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bars section title */
+.moodBarsTitle {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ffffff44;
+  margin-bottom: 5px;
+}
+
+/* Mood description line under the big label */
+.moodDesc {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: -2px;
+  margin-bottom: 2px;
+  font-style: italic;
+  transition: color 1.2s ease;
+}
+
+/* Mood label transition */
+.moodLabel {
+  transition: color 1.2s ease, text-shadow 1.2s ease;
+}
+
+/* Bar fill glow transition */
+.moodBarFill {
+  transition: width 0.8s ease, background 1s ease, box-shadow 1s ease;
+}
+
+/* Thin vertical line marker showing the instant reading on the avg bar */
+.moodBarInstantMarker {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  opacity: 0.7;
+  border-radius: 1px;
+  transform: translateX(-1px);
+  transition: left 0.4s ease;
+  pointer-events: none;
+}
+
+
+.moodBarTrack {
+  position: relative;
+}
+
+/* Emoji in bar labels */
+.moodBarLabel {
+  min-width: 108px;
+}
+
+/* ── Mood history timeline ─────────────────────────────────────────────── */
+.moodHistory {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #ffffff18;
+}
+
+.moodHistoryTitle {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ffffff44;
+  margin-bottom: 6px;
+}
+
+.moodHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.moodHistoryEntry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #ffffff06;
+  transition: opacity 0.5s ease;
+}
+
+.moodHistoryTime {
+  font-size: 0.62rem;
+  color: #ffffff44;
+  font-variant-numeric: tabular-nums;
+  margin-left: 8px;
 }
