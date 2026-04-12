@@ -1,58 +1,42 @@
 """
 Test script to verify MongoDB connection and basic CRUD operations.
-Inserts a test user document into the users collection.
+Inserts a test Spotify token document into the spotify_tokens collection.
 """
 
-from datetime import datetime
-from database import db, init_users_collection
+from database import init_spotify_tokens_collection, upsert_spotify_token
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def test_insert_user():
+def test_insert_token():
     """
-    Insert a test user document into the users collection and print the result.
+    Spotify token collection test: Inserts a test token document and prints the result.
     """
     try:
-        # Initialize the users collection (creates it if it doesn't exist)
-        users_collection = init_users_collection()
-        logger.info("Users collection initialized successfully")
-        
-        # Create a test user document with nested settings
-        test_user = {
-            'username': 'testuser',
-            'email': 'testuser@example.com',
-            'created_at': datetime.utcnow(),
-            'settings': {
-                'theme': 'dark',
-                'notifications_enabled': True,
-                'language': 'en'
-            }
-        }
-        
-        logger.info(f"Inserting test user: {test_user}")
-        
-        # Insert the test user document
-        result = users_collection.insert_one(test_user)
-        
-        # Print the inserted document ID
-        inserted_id = result.inserted_id
-        print(f"\n✓ Successfully inserted test user!")
+        tokens_collection = init_spotify_tokens_collection()
+        logger.info("Spotify tokens collection initialized successfully")
+
+        test_token = upsert_spotify_token(
+            access_token='test_access_token',
+            spotify_user_id='test_spotify_user',
+            refresh_token='test_refresh_token',
+            expires_at='2099-12-31T23:59:59Z',
+            scope='user-read-playback-state user-modify-playback-state'
+        )
+
+        inserted_id = test_token.get('_id')
+        print(f"\n✓ Successfully inserted test Spotify token!")
         print(f"  Document ID: {inserted_id}")
-        print(f"  Username: {test_user['username']}")
-        print(f"  Email: {test_user['email']}")
-        print(f"  Created at: {test_user['created_at']}")
-        print(f"  Settings: {test_user['settings']}\n")
-        
-        logger.info(f"Test user inserted with ID: {inserted_id}")
-        
-        # Retrieve and display the inserted document
-        retrieved_user = users_collection.find_one({'_id': inserted_id})
-        logger.info(f"Retrieved user from database: {retrieved_user}")
-        
+        print(f"  Spotify user id: {test_token.get('spotify_user_id')}")
+        print(f"  Access token: {test_token.get('access_token')}")
+        print(f"  Refresh token: {test_token.get('refresh_token')}")
+        print(f"  Created at: {test_token.get('created_at')}")
+        print(f"  Updated at: {test_token.get('updated_at')}\n")
+
+        logger.info(f"Test token inserted with ID: {inserted_id}")
         return inserted_id
-        
+
     except Exception as e:
         logger.error(f"Error during test insertion: {e}")
         print(f"\n✗ Error: {e}\n")
@@ -61,7 +45,7 @@ def test_insert_user():
 if __name__ == '__main__':
     logger.info("Starting database test...")
     try:
-        doc_id = test_insert_user()
+        doc_id = test_insert_token()
         print(f"Test completed successfully! Document ID: {doc_id}")
     except Exception as e:
         print(f"Test failed: {e}")
