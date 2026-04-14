@@ -1,5 +1,6 @@
 import os
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from database import connect_to_database, init_spotify_tokens_collection, upsert_spotify_token, get_spotify_token, list_spotify_tokens, delete_spotify_token
 from scheduler import start_scheduler, stop_scheduler
 from datetime import datetime, timedelta
@@ -9,6 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)
 
 _db_initialized = False
 
@@ -52,25 +54,29 @@ def health_check():
 
 @app.route('/tokens', methods=['POST'])
 def save_token():
-    payload = request.get_json(silent=True) or {}
-    access_token = payload.get('access_token')
-    spotify_user_id = payload.get('spotify_user_id')
-    refresh_token = payload.get('refresh_token')
-    expires_at = payload.get('expires_at')
-    scope = payload.get('scope')
+    try:
+        payload = request.get_json(silent=True) or {}
+        access_token = payload.get('access_token')
+        spotify_user_id = payload.get('spotify_user_id')
+        refresh_token = payload.get('refresh_token')
+        expires_at = payload.get('expires_at')
+        scope = payload.get('scope')
 
-    if not access_token:
-        return jsonify({'error': 'access_token is required'}), 400
+        if not access_token:
+            return jsonify({'error': 'access_token is required'}), 400
 
-    token_doc = upsert_spotify_token(
-        access_token=access_token,
-        spotify_user_id=spotify_user_id,
-        refresh_token=refresh_token,
-        expires_at=expires_at,
-        scope=scope,
-    )
+        token_doc = upsert_spotify_token(
+            access_token=access_token,
+            spotify_user_id=spotify_user_id,
+            refresh_token=refresh_token,
+            expires_at=expires_at,
+            scope=scope,
+        )
 
-    return jsonify({'status': 'ok', 'token': serialize_token(token_doc)}), 200
+        return jsonify({'status': 'ok', 'token': serialize_token(token_doc)}), 200
+    except Exception as e:
+        logger.error(f'Error saving token: {e}')
+        return jsonify({'error': f'Failed to save token: {str(e)}'}), 500
 
 
 @app.route('/tokens', methods=['GET'])
@@ -81,10 +87,14 @@ def list_tokens():
 
 @app.route('/tokens/<string:spotify_user_id>', methods=['GET'])
 def get_token(spotify_user_id):
-    token_doc = get_spotify_token(spotify_user_id=spotify_user_id)
-    if token_doc is None:
-        return jsonify({'error': 'token not found'}), 404
-    return jsonify({'token': serialize_token(token_doc)}), 200
+    try:
+        token_doc = get_spotify_token(spotify_user_id=spotify_user_id)
+        if token_doc is None:
+            return jsonify({'error': 'token not found'}), 404
+        return jsonify({'token': serialize_token(token_doc)}), 200
+    except Exception as e:
+        logger.error(f'Error retrieving token: {e}')
+        return jsonify({'error': f'Failed to retrieve token: {str(e)}'}), 500
 
 
 @app.route('/tokens/<string:spotify_user_id>', methods=['DELETE'])
@@ -134,6 +144,43 @@ def validate_token(spotify_user_id):
     }), 200
 
 
+@app.route('/user-profile', methods=['POST'])
+def get_user_profile():
+    """
+    Fetch Spotify user profile using the provided access token.
+    This endpoint avoids CORS issues by making the request from the backend.
+    """
+    payload = request.get_json(silent=True) or {}
+    access_token = payload.get('access_token')
+    
+    logger.info(f"Received /user-profile request with token: {access_token[:20] if access_token else 'None'}...")
+    
+    if not access_token:
+        logger.error('No access_token provided')
+        return jsonify({'error': 'access_token is required'}), 400
+    
+    import requests
+    
+    try:
+        logger.info('Attempting to fetch user profile from Spotify API...')
+        response = requests.get(
+            'https://api.spotify.com/v1/me',
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+        
+        logger.info(f'Spotify API response status: {response.status_code}')
+        
+        if not response.ok:
+            logger.error(f'Spotify API returned error: {response.text}')
+            return jsonify({'error': 'Failed to fetch user profile from Spotify'}), response.status_code
+        
+        logger.info('Successfully fetched user profile from Spotify')
+        return jsonify(response.json()), 200
+    except Exception as e:
+        logger.error(f'Error fetching user profile: {e}')
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
+    port = int(os.getenv('PORT', 5001))
     app.run(host='0.0.0.0', port=port)

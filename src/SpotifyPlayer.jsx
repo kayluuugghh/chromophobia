@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import NavBar from './assets/Navbar';
-import { getCurrentUser, getTokenFromBackend, validateTokenOnBackend } from './utils/spotifyAuth';
+import { getCurrentUser, getStoredToken } from './utils/spotifyAuth';
 
 // ─── Hook: useSpotifyPlayer ───────────────────────────────────────
 function useSpotifyPlayer() {
@@ -12,7 +12,7 @@ function useSpotifyPlayer() {
   const [sdkReady, setSdkReady] = useState(false);
   const [error,    setError]    = useState(null);
 
-  // Fetch token from backend
+  // Fetch token from localStorage
   useEffect(() => {
     const loadToken = async () => {
       try {
@@ -23,16 +23,14 @@ function useSpotifyPlayer() {
           return;
         }
 
-        // Validate token on backend first
-        const validation = await validateTokenOnBackend(currentUser);
-        if (!validation.valid) {
-          setError('Token expired or invalid. Please log in again.');
+        // Get token from localStorage
+        const accessToken = getStoredToken();
+        if (!accessToken) {
+          setError('Token not found. Please log in again.');
           setLoading(false);
           return;
         }
 
-        // Get token from backend
-        const accessToken = await getTokenFromBackend(currentUser);
         setToken(accessToken);
       } catch (err) {
         setError(`Failed to load token: ${err.message}`);

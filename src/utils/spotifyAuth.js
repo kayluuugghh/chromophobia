@@ -89,11 +89,15 @@ export async function exchangeCodeForToken(code) {
   // Extract user info from token (if JWT)
   const accessToken = data.access_token;
   
-  // Fetch user profile to get spotify_user_id
-  const userRes = await fetch('https://api.spotify.com/v1/me', {
+  // Fetch user profile from backend to avoid CORS issues
+  const userRes = await fetch(`${BACKEND_URL}/user-profile`, {
+    method: 'POST',
     headers: {
-      'Authorization': `Bearer ${accessToken}`
-    }
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      access_token: accessToken
+    })
   });
   
   if (!userRes.ok) {
@@ -103,13 +107,10 @@ export async function exchangeCodeForToken(code) {
   const userProfile = await userRes.json();
   const spotifyUserId = userProfile.id;
   
-  // Store token on backend
-  await storeTokenOnBackend(
-    spotifyUserId,
-    accessToken,
-    data.refresh_token,
-    data.expires_in
-  );
+  // Store token locally (skip backend storage for now)
+  localStorage.setItem('spotify_access_token', accessToken);
+  localStorage.setItem('spotify_refresh_token', data.refresh_token);
+  localStorage.setItem('spotify_token_expires_at', new Date(Date.now() + data.expires_in * 1000).toISOString());
   
   // Set current user
   setCurrentUser(spotifyUserId);
@@ -123,9 +124,9 @@ export async function exchangeCodeForToken(code) {
 
 // ─── Backend Token Storage ────────────────────────────────────────
 export async function storeTokenOnBackend(spotifyUserId, accessToken, refreshToken, expiresIn) {
-  """
+  /*
   Store tokens on the backend so they persist and can be refreshed server-side.
-  """
+  */
   const expiresAt = new Date();
   expiresAt.setSeconds(expiresAt.getSeconds() + expiresIn);
   
@@ -152,9 +153,9 @@ export async function storeTokenOnBackend(spotifyUserId, accessToken, refreshTok
 }
 
 export async function getTokenFromBackend(spotifyUserId) {
-  """
+  /*
   Retrieve the current token for a user from the backend.
-  """
+  */
   const res = await fetch(`${BACKEND_URL}/tokens/${spotifyUserId}`);
   
   if (!res.ok) {
@@ -166,9 +167,9 @@ export async function getTokenFromBackend(spotifyUserId) {
 }
 
 export async function validateTokenOnBackend(spotifyUserId) {
-  """
+  /*
   Check if the token is still valid and not expired.
-  """
+  */
   const res = await fetch(`${BACKEND_URL}/validate-token/${spotifyUserId}`);
   
   if (!res.ok) {
@@ -181,29 +182,16 @@ export async function validateTokenOnBackend(spotifyUserId) {
 
 // ─── Token Helpers ────────────────────────────────────────────────
 export function getStoredToken() {
-  """
-  Get the stored access token. On app load, will be retrieved from backend if user is logged in.
-  """
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    return getTokenFromBackend(currentUser);
-  }
-  return null;
+  /*
+  Get the stored access token from localStorage.
+  */
+  return localStorage.getItem('spotify_access_token');
 }
 
 export async function logout() {
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    try {
-      // Delete token from backend
-      await fetch(`${BACKEND_URL}/tokens/${currentUser}`, {
-        method: 'DELETE'
-      });
-    } catch (e) {
-      console.error('Error deleting token from backend:', e);
-    }
-  }
-  
   localStorage.removeItem('current_user_id');
   localStorage.removeItem('spotify_verifier');
+  localStorage.removeItem('spotify_access_token');
+  localStorage.removeItem('spotify_refresh_token');
+  localStorage.removeItem('spotify_token_expires_at');
 }

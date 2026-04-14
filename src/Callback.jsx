@@ -5,9 +5,8 @@ import {
   getCodeFromUrl, 
   exchangeCodeForToken,
   getCurrentUser,
-  getTokenFromBackend,
-  logout as spotifyLogout,
-  validateTokenOnBackend
+  getStoredToken,
+  logout as spotifyLogout
 } from './utils/spotifyAuth';
 
 export default function Callback() {
@@ -20,24 +19,24 @@ export default function Callback() {
   const [tokenValid, setTokenValid] = useState(false);
   const exchanging                 = useRef(false);
 
-  // Validate token on load if user exists
+  // Check if user is already logged in
   useEffect(() => {
     const validateExistingToken = async () => {
       const currentUser = getCurrentUser();
       if (currentUser && !loading) {
         try {
-          const validation = await validateTokenOnBackend(currentUser);
-          if (validation.valid) {
+          const storedToken = getStoredToken();
+          if (storedToken) {
             setToken(true);
             setTokenValid(true);
           } else {
-            // Token expired or invalid, clear user session
+            // Token not found, clear user session
             await spotifyLogout();
             setToken(false);
             setTokenValid(false);
           }
         } catch (err) {
-          console.error('Token validation error:', err);
+          console.error('Token check error:', err);
           setToken(false);
           setTokenValid(false);
         }
