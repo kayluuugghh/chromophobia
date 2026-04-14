@@ -303,7 +303,6 @@ export default function SpotifyPlayer({ token: propToken}) {
 
   return (
     <div>
-      <h1>David's Edits</h1>
       <NavBar/>
 
       {/* Track info */}
