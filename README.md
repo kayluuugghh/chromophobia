@@ -100,17 +100,7 @@ cp .env.example .env
 Edit `.env` with:
 
 ```env
-# Spotify OAuth (from https://developer.spotify.com/dashboard)
-VITE_CLIENT_ID=your_spotify_client_id
-VITE_REDIRECT_URI=http://localhost:5173/callback
-SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-
-# Backend
-VITE_BACKEND_URL=http://localhost:5000
-PORT=5000
-
-# MongoDB
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/chromophobia
+#dont inclide this in read me file lmao
 ```
 
 ### 3. Run the Application
