@@ -1,81 +1,48 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import NavBar from './assets/Navbar';
-
-// ─── Config ───────────────────────────────────────────────────────
-const CLIENT_ID   = import.meta.env.VITE_CLIENT_ID;
-const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;
-const SCOPES       = 'streaming user-read-email user-read-private user-modify-playback-state';
-
-// ─── PKCE Helpers ─────────────────────────────────────────────────
-function generateCodeVerifier() {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function generateCodeChallenge(verifier) {
-  const data   = new TextEncoder().encode(verifier);
-  const digest = await crypto.subtle.digest('SHA-256', data);
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-}
-
-// ─── Auth Exports ─────────────────────────────────────────────────
-export async function loginWithSpotify() {
-  localStorage.removeItem('spotify_verifier');
-  localStorage.removeItem('spotify_token');
-
-  const verifier  = generateCodeVerifier();
-  const challenge = await generateCodeChallenge(verifier);
-  localStorage.setItem('spotify_verifier', verifier);
-
-  const params = new URLSearchParams({
-    client_id:             CLIENT_ID,
-    response_type:         'code',
-    redirect_uri:          REDIRECT_URI,
-    scope:                 SCOPES,
-    code_challenge_method: 'S256',
-    code_challenge:        challenge,
-  });
-
-  window.location.href = `https://accounts.spotify.com/authorize?${params}`;
-}
-
-export async function exchangeCodeForToken(code) {
-  const verifier = localStorage.getItem('spotify_verifier');
-  if (!verifier) throw new Error('No code_verifier found. Please log in again.');
-
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id:     CLIENT_ID,
-      grant_type:    'authorization_code',
-      code,
-      redirect_uri:  REDIRECT_URI,
-      code_verifier: verifier,
-    }),
-  });
-
-  const data = await res.json();
-  if (data.error) throw new Error(`${data.error}: ${data.error_description}`);
-  localStorage.removeItem('spotify_verifier');
-  return data.access_token;
-}
-
-export function getCodeFromUrl() {
-  return new URLSearchParams(window.location.search).get('code');
-}
+import { getCurrentUser, getTokenFromBackend, validateTokenOnBackend } from './utils/spotifyAuth';
 
 // ─── Hook: useSpotifyPlayer ───────────────────────────────────────
-function useSpotifyPlayer(token) {
+function useSpotifyPlayer() {
+  const [token,    setToken]    = useState(null);
+  const [loading,  setLoading]  = useState(true);
   const [player,   setPlayer]   = useState(null);
   const [deviceId, setDeviceId] = useState(null);
   const [state,    setState]    = useState(null);
   const [sdkReady, setSdkReady] = useState(false);
   const [error,    setError]    = useState(null);
+
+  // Fetch token from backend
+  useEffect(() => {
+    const loadToken = async () => {
+      try {
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+          setError('No user logged in');
+          setLoading(false);
+          return;
+        }
+
+        // Validate token on backend first
+        const validation = await validateTokenOnBackend(currentUser);
+        if (!validation.valid) {
+          setError('Token expired or invalid. Please log in again.');
+          setLoading(false);
+          return;
+        }
+
+        // Get token from backend
+        const accessToken = await getTokenFromBackend(currentUser);
+        setToken(accessToken);
+      } catch (err) {
+        setError(`Failed to load token: ${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadToken();
+  }, []);
 
   useEffect(() => {
     if (window.Spotify) { setSdkReady(true); return; }
@@ -117,7 +84,7 @@ function useSpotifyPlayer(token) {
     });
   }, [deviceId, token]);
 
-  return { player, deviceId, state, sdkReady, error };
+  return { player, deviceId, state, sdkReady, error, loading, token };
 }
 
 
@@ -282,9 +249,8 @@ function formatMs(ms) {
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
 // ─── Component ────────────────────────────────────────────────────
-export default function SpotifyPlayer({ token: propToken}) {
-  const token = propToken || localStorage.getItem('spotify_token');
-  const { player, deviceId, state, sdkReady, error } = useSpotifyPlayer(token);
+export default function SpotifyPlayer() {
+  const { player, deviceId, state, sdkReady, error, loading, token } = useSpotifyPlayer();
   const { togglePlay, nextTrack, prevTrack, seek, setVolume, playUri } =
     usePlaybackControls(player, token, deviceId);
   const { capturing, features, captureErr, startCapture, stopCapture } =
@@ -304,9 +270,10 @@ export default function SpotifyPlayer({ token: propToken}) {
     setVolume(v / 100);
   };
 
-  if (error)     return <p>Error: {error}</p>;
-  if (!sdkReady) return <p>Loading Spotify SDK...</p>;
-  if (!deviceId) return <p>Connecting to Spotify...</p>;
+  if (loading)    return <p>Loading your tokens...</p>;
+  if (error)      return <p>Error: {error}</p>;
+  if (!sdkReady)  return <p>Loading Spotify SDK...</p>;
+  if (!deviceId)  return <p>Connecting to Spotify...</p>;
 
   return (
     <div>

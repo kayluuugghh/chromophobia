@@ -1,6 +1,8 @@
 import os
 from flask import Flask, request, jsonify
 from database import connect_to_database, init_spotify_tokens_collection, upsert_spotify_token, get_spotify_token, list_spotify_tokens, delete_spotify_token
+from scheduler import start_scheduler, stop_scheduler
+from datetime import datetime, timedelta
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -16,6 +18,14 @@ def initialize_database():
         connect_to_database()
         init_spotify_tokens_collection()
         _db_initialized = True
+        # Start the token refresh scheduler
+        start_scheduler(refresh_interval_minutes=60)
+
+
+@app.teardown_appcontext
+def shutdown_scheduler(exception=None):
+    """Stop scheduler when app shuts down."""
+    stop_scheduler()
 
 
 def serialize_token(token_doc):
@@ -83,6 +93,45 @@ def delete_token(spotify_user_id):
     if deleted_count == 0:
         return jsonify({'error': 'token not found'}), 404
     return jsonify({'status': 'deleted'}), 200
+
+
+@app.route('/validate-token/<string:spotify_user_id>', methods=['GET'])
+def validate_token(spotify_user_id):
+    """
+    Check if a stored token is still valid and not expired.
+    Returns the token if valid, or error if expired/not found.
+    """
+    initialize_database()
+    token_doc = get_spotify_token(spotify_user_id=spotify_user_id)
+    
+    if token_doc is None:
+        return jsonify({'error': 'token not found', 'valid': False}), 404
+    
+    expires_at = token_doc.get('expires_at')
+    
+    # Parse expires_at if it's a string
+    if isinstance(expires_at, str):
+        try:
+            expires_at = datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
+        except:
+            return jsonify({
+                'error': 'Could not parse token expiry',
+                'valid': False
+            }), 400
+    
+    # Check if token is expired
+    if expires_at and expires_at < datetime.utcnow():
+        return jsonify({
+            'error': 'token expired',
+            'valid': False,
+            'expired_at': expires_at.isoformat() if hasattr(expires_at, 'isoformat') else str(expires_at)
+        }), 401
+    
+    return jsonify({
+        'valid': True,
+        'token': serialize_token(token_doc),
+        'expires_at': expires_at.isoformat() if hasattr(expires_at, 'isoformat') else str(expires_at)
+    }), 200
 
 
 if __name__ == '__main__':
