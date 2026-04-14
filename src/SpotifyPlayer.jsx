@@ -134,10 +134,40 @@ function usePlaybackControls(player, token, deviceId) {
   const setVolume  = useCallback((v)  => player?.setVolume(v),  [player]);
 
   const playUri = useCallback(async (uri) => {
-    await fetch(
-      `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
-      { method: 'PUT', headers, body: JSON.stringify({ uris: [uri] }) }
-    );
+    try {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+
+      const res = await fetch(
+          `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+          {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ uris: [uri] }),
+          }
+      );
+
+      if (!res.ok) {
+        const raw = await res.text();
+
+        let message = raw;
+        try {
+          const data = JSON.parse(raw);
+          message = data.error?.message || JSON.stringify(data);
+        } catch {
+          // keep raw text if it isn't JSON
+        }
+
+        alert(`Spotify Error (${res.status}):\n${message}`);
+        return;
+      }
+
+      alert("Playback started successfully 🎧");
+    } catch (err) {
+      alert(`Playback failed:\n${err.message}`);
+    }
   }, [token, deviceId]);
 
   return { togglePlay, nextTrack, prevTrack, seek, setVolume, playUri };
@@ -273,6 +303,7 @@ export default function SpotifyPlayer({ token: propToken}) {
 
   return (
     <div>
+      <h1>David's Edits</h1>
       <NavBar/>
 
       {/* Track info */}
