@@ -29,6 +29,7 @@ function NavBar() {
                     <li><Link to="/home">Home</Link></li>
                     <li><a onClick={toggleAbout} className="link-btn">About</a></li>
                     <li><Link to="/team">Team</Link></li>
+                    <li><Link to="/">Logout</Link></li>
                 </ul>
             </div>
                 {/* Customization button */}
