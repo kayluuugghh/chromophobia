@@ -11,6 +11,7 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
@@ -39,4 +40,53 @@
 
 .read-the-docs {
   color: #888;
+}
+
+
+@media (prefers-color-scheme: light){
+.title {
+  font-size: 500%;
+  font-weight: 1000;
+  text-transform: uppercase;
+  background: url(./assets/light.jpg) 50% 20%;
+  background-size: cover;
+  -webkit-text-fill-color:transparent;
+  -webkit-background-clip:text;
+  -webkit-text-stroke: 1px black;
+}
+.login-button {
+  text-transform: uppercase;
+  background: url(./assets/light.jpg) 50% 20%;
+  background-size: cover;
+  font-weight: 1000;
+  border: 1px solid black;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+}
+
+@media (prefers-color-scheme: dark){
+  body {
+    background-color: black;
+  }
+.title {
+  font-size: 500%;
+  font-weight: 1000;
+  text-transform: uppercase;
+  background: url(./assets/dark.jpg) 50% 50%;
+  background-size: cover;
+  -webkit-text-fill-color:transparent;
+  -webkit-background-clip:text;
+  -webkit-text-stroke: 1px white;
+}
+.login-button {
+  text-transform: uppercase;
+  background: url(./assets/dark.jpg) 50% 50%;
+  background-size: cover;
+  font-weight: 1000;
+  border: 1px solid white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  -webkit-text-stroke: 0.5px black;
+}
 }
