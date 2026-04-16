@@ -188,6 +188,13 @@ export function getStoredToken() {
   return localStorage.getItem('spotify_access_token');
 }
 
+export function getStoredToken() {
+  /*
+  Get the stored access token from localStorage.
+  */
+  return localStorage.getItem('spotify_access_token');
+}
+
 export async function logout() {
   localStorage.removeItem('current_user_id');
   localStorage.removeItem('spotify_verifier');

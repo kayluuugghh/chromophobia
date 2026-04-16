@@ -69,6 +69,20 @@ export default function Callback() {
     }
   }, []);
 
+  // Refresh the token on mount if it's expired (e.g. user returns after a long time)
+  useEffect(() => {
+    if (token) {
+      getValidToken()
+        .then(validToken => {
+          if (validToken !== token) setToken(validToken);
+        })
+        .catch(() => {
+          // Refresh failed — force re-login
+          handleLogout();
+        });
+    }
+  }, []);
+
   const handleLogout = async () => {
     await spotifyLogout();
     setToken(false);

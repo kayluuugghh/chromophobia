@@ -1,9 +1,9 @@
-import NavBar from './assets/Navbar.jsx';
+import HelpBtn from "./assets/HelpBtn";
 
 function Home() {
     return (
         <>
-            <NavBar />
+            <HelpBtn />
             <div>
             </div>
         </>
