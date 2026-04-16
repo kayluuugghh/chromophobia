@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import NavBar from './assets/Navbar';
+// import NavBar from './assets/Navbar';
+import HelpBtn from './assets/HelpBtn';
 
 // ─── Config ───────────────────────────────────────────────────────
 const CLIENT_ID    = import.meta.env.VITE_CLIENT_ID;
@@ -332,7 +333,7 @@ export default function SpotifyPlayer({ token: propToken }) {
 
   return (
     <div>
-      <NavBar />
+      <HelpBtn />
 
       {/* ── Now playing ── */}
       <div className="now-playing">
