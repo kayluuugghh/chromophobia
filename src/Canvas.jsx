@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Meyda from "meyda";
 import './Canvas.css';
 
+
+
 // ── WebSocket server address (must match server.py) ──────────────────────────
 const WS_URL      = "ws://localhost:8765";
 const WS_SEND_MS  = 500;   // how often to send features for mood classification
@@ -1231,3 +1233,4 @@ export default function Canvas() {
     </div>
   );
 }
+
