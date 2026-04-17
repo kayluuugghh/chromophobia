@@ -9,6 +9,8 @@ import {
   logout as spotifyLogout
 } from './utils/spotifyAuth';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
 export default function Callback() {
   const [token, setToken]          = useState(() => {
     const user = getCurrentUser();
@@ -90,9 +92,14 @@ export default function Callback() {
   if (loading) return <p>Logging in...</p>;
 
   if (error) return (
-    <div>
-      <p>Error: {error}</p>
-      <button onClick={handleLogout}>Try again</button>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', textAlign: 'center' }}>
+      <h2>Authentication Error</h2>
+      <p style={{ color: '#888', marginBottom: '1rem' }}>{error}</p>
+      <small style={{ color: '#aaa', marginBottom: '2rem', maxWidth: '500px' }}>
+        Check your browser console (F12 → Console tab) for detailed error information. 
+        Make sure your backend server is running on {BACKEND_URL}.
+      </small>
+      <button onClick={handleLogout} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>Try Again</button>
     </div>
   );
 
