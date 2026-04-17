@@ -19,7 +19,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/home" element={<SpotifyPlayer />} />
         <Route path="/team" element={<Team />} />
         <Route path="/callback" element={<Callback />} />
-        <Route path='/canvas' element={<><NavBar /><Canvas/></>}/>
+        <Route path='/canvas' element={<Canvas/>}/> 
       </Routes>
     </BrowserRouter>
   </StrictMode>
