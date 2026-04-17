@@ -5,6 +5,10 @@ import { loginWithSpotify } from './utils/spotifyAuth.js'
 import './Login.css'
 import Follower from './assets/Follower.jsx'
 
+const img = new Image();
+img.src = '/butterfly.png';
+img.src = '/firefly.png';
+
 function Login() {
     const navigate = useNavigate();
 
