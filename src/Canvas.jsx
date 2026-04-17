@@ -37,7 +37,9 @@ export default function Canvas() {
 
   const [listening,   setListening]   = useState(false);
   const [error,       setError]       = useState(null);
-  const [mode,        setMode]        = useState(0);
+
+  //sets default visual to option 4 (cymantics)
+  const [mode,        setMode]        = useState(4);
 
   // ── Mood state ─────────────────────────────────────────────────────────────
   const [mood,        setMood]        = useState(null);  // instant classifier mood
