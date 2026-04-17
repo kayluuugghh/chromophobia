@@ -69,9 +69,12 @@ function useSpotifyPlayer() {
   useEffect(() => {
     const loadToken = async () => {
       try {
+        console.log('[SpotifyPlayer] Loading token from storage...');
         const currentUser = getCurrentUser();
         if (!currentUser) {
-          setError('No user logged in');
+          const msg = 'No user logged in. Please log in with Spotify.';
+          console.error('[SpotifyPlayer]', msg);
+          setError(msg);
           setLoading(false);
           return;
         }
@@ -79,14 +82,19 @@ function useSpotifyPlayer() {
         // Get token from localStorage
         const accessToken = getStoredToken();
         if (!accessToken) {
-          setError('Token not found. Please log in again.');
+          const msg = 'Token not found in storage. Please log in again.';
+          console.error('[SpotifyPlayer]', msg);
+          setError(msg);
           setLoading(false);
           return;
         }
 
+        console.log('[SpotifyPlayer] Token loaded successfully for user:', currentUser);
         setToken(accessToken);
       } catch (err) {
-        setError(`Failed to load token: ${err.message}`);
+        const msg = `Failed to load token: ${err.message}`;
+        console.error('[SpotifyPlayer]', msg);
+        setError(msg);
       } finally {
         setLoading(false);
       }
@@ -111,33 +119,82 @@ function useSpotifyPlayer() {
 
   // Create and connect player
   useEffect(() => {
-    if (!sdkReady || !token) return;
+    if (!sdkReady || !token) {
+      console.log('[SpotifyPlayer] Waiting for SDK...', { sdkReady, hasToken: !!token });
+      return;
+    }
+    
+    console.log('[SpotifyPlayer] Creating Spotify player...');
     const p = new window.Spotify.Player({
       name: 'Chromophobia Player',
-      getOAuthToken: cb => cb(tokenRef.current),
+      getOAuthToken: cb => {
+        console.log('[SpotifyPlayer] Getting OAuth token...');
+        cb(tokenRef.current);
+      },
       volume: 0.5,
     });
-    p.addListener('ready',                ({ device_id }) => setDeviceId(device_id));
-    p.addListener('not_ready',            ()              => { setDeviceId(null); setReady(false); });
-    p.addListener('player_state_changed', s               => setPsState(s ? { ...s } : null));
-    p.addListener('initialization_error', ({ message })   => setError(message));
-    p.addListener('authentication_error', ({ message })   => setError(message));
-    p.addListener('account_error',        ({ message })   => setError(message));
+    
+    p.addListener('ready', ({ device_id }) => {
+      console.log('[SpotifyPlayer] Player ready with device ID:', device_id);
+      setDeviceId(device_id);
+    });
+    
+    p.addListener('not_ready', () => {
+      console.warn('[SpotifyPlayer] Player is not ready');
+      setDeviceId(null);
+      setReady(false);
+    });
+    
+    p.addListener('player_state_changed', s => {
+      console.log('[SpotifyPlayer] Player state changed:', s?.currently_playing_type);
+      setPsState(s ? { ...s } : null);
+    });
+    
+    p.addListener('initialization_error', ({ message }) => {
+      const errorMsg = `Spotify SDK initialization error: ${message}`;
+      console.error('[SpotifyPlayer]', errorMsg);
+      setError(errorMsg);
+    });
+    
+    p.addListener('authentication_error', ({ message }) => {
+      const errorMsg = `Spotify authentication failed: ${message}. Your token may have expired. Please log in again.`;
+      console.error('[SpotifyPlayer]', errorMsg);
+      setError(errorMsg);
+    });
+    
+    p.addListener('account_error', ({ message }) => {
+      const errorMsg = `Spotify account error: ${message}. Please check your Spotify account.`;
+      console.error('[SpotifyPlayer]', errorMsg);
+      setError(errorMsg);
+    });
+    
+    console.log('[SpotifyPlayer] Connecting player...');
     p.connect();
     playerRef.current = p;
     setPlayer(p);
-    return () => { p.disconnect(); playerRef.current = null; };
+    
+    return () => {
+      console.log('[SpotifyPlayer] Disconnecting player...');
+      p.disconnect();
+      playerRef.current = null;
+    };
   }, [sdkReady, token]);
 
   // Transfer playback to our device
   useEffect(() => {
     if (!deviceId || !token) return;
     setReady(false);
+    console.log('[SpotifyPlayer] Transferring playback to device:', deviceId);
     spotifyFetch('https://api.spotify.com/v1/me/player', token, {
       method: 'PUT',
       body: JSON.stringify({ device_ids: [deviceId], play: false }),
     })
-      .catch(console.error)
+      .then(() => {
+        console.log('[SpotifyPlayer] Playback transfer successful');
+      })
+      .catch(err => {
+        console.error('[SpotifyPlayer] Playback transfer failed:', err.message);
+      })
       .finally(() => setTimeout(() => setReady(true), 1500));
   }, [deviceId, token]);
 
@@ -295,7 +352,17 @@ export default function SpotifyPlayer() {
 
   const togglePanel = name => setActivePanel(p => p === name ? null : name);
 
-  if (error)     return <p className="status-msg">Error: {error}</p>;
+  if (error)     return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', textAlign: 'center', padding: '2rem' }}>
+      <h2>Error</h2>
+      <p style={{ color: '#888', marginBottom: '1rem', maxWidth: '500px' }}>{error}</p>
+      <small style={{ color: '#aaa', marginBottom: '2rem', maxWidth: '600px' }}>
+        Check your browser console (F12 → Console tab) for detailed debugging information. 
+        If you see authentication errors, please try logging in again.
+      </small>
+      <button onClick={() => window.location.href = '/'} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>Back to Login</button>
+    </div>
+  );
   if (loading)   return <p className="status-msg">Loading your tokens...</p>;
   if (!sdkReady) return <p className="status-msg">Loading Spotify SDK…</p>;
   if (!deviceId) return <p className="status-msg">Connecting player…</p>;
