@@ -71,17 +71,14 @@ export default function Callback() {
 
   // Refresh the token on mount if it's expired (e.g. user returns after a long time)
   useEffect(() => {
-    if (token) {
-      getValidToken()
-        .then(validToken => {
-          if (validToken !== token) setToken(validToken);
-        })
-        .catch(() => {
-          // Refresh failed — force re-login
-          handleLogout();
-        });
+    if (token && tokenValid) {
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        // Token validation will be handled by SpotifyPlayer component
+        // If token is expired, the player will fail to connect and we redirect to login
+      }
     }
-  }, []);
+  }, [tokenValid]);
 
   const handleLogout = async () => {
     await spotifyLogout();
