@@ -1,100 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 // import NavBar from './assets/Navbar';
 import HelpBtn from './assets/HelpBtn';
-
-// ─── Config ───────────────────────────────────────────────────────
-const CLIENT_ID    = import.meta.env.VITE_CLIENT_ID;
-const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;
-const SCOPES = [
-  'streaming',
-  'user-read-email',
-  'user-read-private',
-  'user-modify-playback-state',
-  'user-read-playback-state',
-  'playlist-read-private',
-  'playlist-read-collaborative',
-].join(' ');
-
-// ─── PKCE Helpers ─────────────────────────────────────────────────
-function generateCodeVerifier() {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function generateCodeChallenge(verifier) {
-  const data   = new TextEncoder().encode(verifier);
-  const digest = await crypto.subtle.digest('SHA-256', data);
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-// ─── Auth Exports ─────────────────────────────────────────────────
-export async function loginWithSpotify() {
-  localStorage.removeItem('spotify_verifier');
-  localStorage.removeItem('spotify_token');
-  const verifier  = generateCodeVerifier();
-  const challenge = await generateCodeChallenge(verifier);
-  localStorage.setItem('spotify_verifier', verifier);
-  const params = new URLSearchParams({
-    client_id: CLIENT_ID, response_type: 'code',
-    redirect_uri: REDIRECT_URI, scope: SCOPES,
-    code_challenge_method: 'S256', code_challenge: challenge,
-  });
-  window.location.href = `https://accounts.spotify.com/authorize?${params}`;
-}
-
-export async function exchangeCodeForToken(code) {
-  const verifier = localStorage.getItem('spotify_verifier');
-  if (!verifier) throw new Error('No code_verifier. Please log in again.');
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: CLIENT_ID, grant_type: 'authorization_code',
-      code, redirect_uri: REDIRECT_URI, code_verifier: verifier,
-    }),
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(`${data.error}: ${data.error_description}`);
-  localStorage.removeItem('spotify_verifier');
-  localStorage.setItem('spotify_token', data.access_token);
-  if (data.refresh_token) localStorage.setItem('spotify_refresh_token', data.refresh_token);
-  if (data.expires_in)    localStorage.setItem('spotify_token_expiry', Date.now() + data.expires_in * 1000);
-  return data.access_token;
-}
-
-export function getCodeFromUrl() {
-  return new URLSearchParams(window.location.search).get('code');
-}
-
-export async function refreshAccessToken() {
-  const rt = localStorage.getItem('spotify_refresh_token');
-  if (!rt) throw new Error('No refresh token. Please log in again.');
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ client_id: CLIENT_ID, grant_type: 'refresh_token', refresh_token: rt }),
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(`${data.error}: ${data.error_description}`);
-  localStorage.setItem('spotify_token', data.access_token);
-  localStorage.setItem('spotify_token_expiry', Date.now() + data.expires_in * 1000);
-  if (data.refresh_token) localStorage.setItem('spotify_refresh_token', data.refresh_token);
-  return data.access_token;
-}
-
-export async function getValidToken() {
-  const expiry = Number(localStorage.getItem('spotify_token_expiry') ?? 0);
-  return Date.now() > expiry - 60_000
-    ? await refreshAccessToken()
-    : localStorage.getItem('spotify_token');
-}
-
-export function logout() {
-  ['spotify_token','spotify_refresh_token','spotify_token_expiry','spotify_verifier']
-    .forEach(k => localStorage.removeItem(k));
-}
+import { getCurrentUser, getStoredToken } from './utils/spotifyAuth';
 
 // ─── Helpers ──────────────────────────────────────────────────────
 function formatMs(ms) {
@@ -135,20 +42,74 @@ function useSDK() {
   }, []);
   return ready;
 }
-
-// ─── Hook: usePlayer ──────────────────────────────────────────────
+// ─── Hook: usePlayer ─────────────────────────────────────────────
 function usePlayer(token) {
   const sdkReady   = useSDK();
   const playerRef  = useRef(null);
   const tokenRef   = useRef(token);
   useEffect(() => { tokenRef.current = token; }, [token]);
+  return { sdkReady, playerRef, tokenRef };
+}
 
+// ─── Hook: useSpotifyPlayer ───────────────────────────────────────
+function useSpotifyPlayer() {
+  const [token,    setToken]    = useState(null);
+  const [loading,  setLoading]  = useState(true);
+  const [player,   setPlayer]   = useState(null);
   const [deviceId, setDeviceId] = useState(null);
   const [psState,  setPsState]  = useState(null);
   const [error,    setError]    = useState(null);
   const [ready,    setReady]    = useState(false);
+  const [sdkReady, setSdkReady] = useState(!!window.Spotify);
+  
+  const playerRef  = useRef(null);
+  const tokenRef   = useRef(token);
 
-  // Create SDK player
+  // Fetch token from localStorage
+  useEffect(() => {
+    const loadToken = async () => {
+      try {
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+          setError('No user logged in');
+          setLoading(false);
+          return;
+        }
+
+        // Get token from localStorage
+        const accessToken = getStoredToken();
+        if (!accessToken) {
+          setError('Token not found. Please log in again.');
+          setLoading(false);
+          return;
+        }
+
+        setToken(accessToken);
+      } catch (err) {
+        setError(`Failed to load token: ${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadToken();
+  }, []);
+
+  // Load Spotify SDK
+  useEffect(() => {
+    if (window.Spotify) { setSdkReady(true); return; }
+    window.onSpotifyWebPlaybackSDKReady = () => setSdkReady(true);
+    const script = document.createElement('script');
+    script.src   = 'https://sdk.scdn.co/spotify-player.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => document.body.removeChild(script);
+  }, []);
+
+  // Update token ref
+  useEffect(() => { tokenRef.current = token; }, [token]);
+
+  // Create and connect player
   useEffect(() => {
     if (!sdkReady || !token) return;
     const p = new window.Spotify.Player({
@@ -164,6 +125,7 @@ function usePlayer(token) {
     p.addListener('account_error',        ({ message })   => setError(message));
     p.connect();
     playerRef.current = p;
+    setPlayer(p);
     return () => { p.disconnect(); playerRef.current = null; };
   }, [sdkReady, token]);
 
@@ -184,28 +146,35 @@ function usePlayer(token) {
   const prevTrack  = useCallback(() => playerRef.current?.previousTrack(), []);
   const seek       = useCallback(ms => playerRef.current?.seek(ms),        []);
   const setVolume  = useCallback(v  => playerRef.current?.setVolume(v),    []);
+  return { player, deviceId, psState, sdkReady, error, loading, token, ready };
+}
 
-  // playTrack: plays a single URI. Returns true on success.
+
+// ─── Hook: usePlaybackControls ────────────────────────────────────
+function usePlaybackControls(player, token, deviceId) {
+  const togglePlay = useCallback(() => player?.togglePlay(), [player]);
+  const nextTrack  = useCallback(() => player?.nextTrack(), [player]);
+  const prevTrack  = useCallback(() => player?.previousTrack(), [player]);
+  const seek       = useCallback((ms) => player?.seek(ms), [player]);
+  const setVolume  = useCallback((v) => player?.setVolume(v), [player]);
+
   const playTrack = useCallback(async (uri) => {
-    const t = tokenRef.current;
-    if (!t || !deviceId || !ready) {
-      console.warn('[playTrack] not ready', { hasToken: !!t, deviceId, ready });
-      return false;
-    }
+    if (!token || !deviceId) return false;
+
     try {
       await spotifyFetch(
         `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
-        t,
+        token,
         { method: 'PUT', body: JSON.stringify({ uris: [uri] }) }
       );
       return true;
     } catch (e) {
-      setError(e.message);
+      console.error(e);
       return false;
     }
-  }, [deviceId, ready]);
+  }, [token, deviceId]);
 
-  return { sdkReady, deviceId, psState, error, ready, togglePlay, nextTrack, prevTrack, seek, setVolume, playTrack };
+  return { togglePlay, nextTrack, prevTrack, seek, setVolume, playTrack };
 }
 
 // ─── Hook: useInterpolatedPosition ───────────────────────────────
@@ -296,13 +265,13 @@ function SearchPanel({ token, onPlay }) {
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────
-export default function SpotifyPlayer({ token: propToken }) {
-  const token = propToken ?? localStorage.getItem('spotify_token');
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
-  const { sdkReady, deviceId, psState, error, ready, togglePlay, nextTrack, prevTrack, seek, setVolume, playTrack } =
-    usePlayer(token);
-
+// ─── Component ────────────────────────────────────────────────────
+export default function SpotifyPlayer() {
+  const { player, deviceId, psState, sdkReady, error, loading, token, ready } = useSpotifyPlayer();
+  const { togglePlay, nextTrack, prevTrack, seek, setVolume, playTrack } =
+  usePlaybackControls(player, token, deviceId);
 
   const interpolated = useInterpolatedPosition(psState);
 
@@ -327,6 +296,7 @@ export default function SpotifyPlayer({ token: propToken }) {
   const togglePanel = name => setActivePanel(p => p === name ? null : name);
 
   if (error)     return <p className="status-msg">Error: {error}</p>;
+  if (loading)   return <p className="status-msg">Loading your tokens...</p>;
   if (!sdkReady) return <p className="status-msg">Loading Spotify SDK…</p>;
   if (!deviceId) return <p className="status-msg">Connecting player…</p>;
   if (!ready)    return <p className="status-msg">Transferring playback…</p>;

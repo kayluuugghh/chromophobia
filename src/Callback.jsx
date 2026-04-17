@@ -1,13 +1,52 @@
 import { useEffect, useState, useRef } from 'react';
 import SpotifyPlayer from './SpotifyPlayer';
-import { loginWithSpotify, getCodeFromUrl, exchangeCodeForToken, getValidToken, logout } from './utils/spotifyAuth.js';
+import { 
+  loginWithSpotify, 
+  getCodeFromUrl, 
+  exchangeCodeForToken,
+  getCurrentUser,
+  getStoredToken,
+  logout as spotifyLogout
+} from './utils/spotifyAuth';
 
 export default function Callback() {
-  const [token, setToken]     = useState(() => localStorage.getItem('spotify_token'));
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
-  const exchanging            = useRef(false);
+  const [token, setToken]          = useState(() => {
+    const user = getCurrentUser();
+    return user ? true : false; // Just track if user is logged in
+  });
+  const [loading, setLoading]      = useState(false);
+  const [error, setError]          = useState(null);
+  const [tokenValid, setTokenValid] = useState(false);
+  const exchanging                 = useRef(false);
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const validateExistingToken = async () => {
+      const currentUser = getCurrentUser();
+      if (currentUser && !loading) {
+        try {
+          const storedToken = getStoredToken();
+          if (storedToken) {
+            setToken(true);
+            setTokenValid(true);
+          } else {
+            // Token not found, clear user session
+            await spotifyLogout();
+            setToken(false);
+            setTokenValid(false);
+          }
+        } catch (err) {
+          console.error('Token check error:', err);
+          setToken(false);
+          setTokenValid(false);
+        }
+      }
+    };
+    
+    validateExistingToken();
+  }, []);
+
+  // Handle OAuth callback
   useEffect(() => {
     const isCallback = window.location.pathname === '/callback';
     const code       = getCodeFromUrl();
@@ -18,9 +57,9 @@ export default function Callback() {
       window.history.replaceState({}, '', '/');
 
       exchangeCodeForToken(code)
-        .then(accessToken => {
-          // spotifyAuth.js already saves token, refresh token, and expiry to localStorage
-          setToken(accessToken);
+        .then(result => {
+          setToken(true);
+          setTokenValid(true);
         })
         .catch(err => {
           setError(err.message);
@@ -32,21 +71,19 @@ export default function Callback() {
 
   // Refresh the token on mount if it's expired (e.g. user returns after a long time)
   useEffect(() => {
-    if (token) {
-      getValidToken()
-        .then(validToken => {
-          if (validToken !== token) setToken(validToken);
-        })
-        .catch(() => {
-          // Refresh failed — force re-login
-          handleLogout();
-        });
+    if (token && tokenValid) {
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        // Token validation will be handled by SpotifyPlayer component
+        // If token is expired, the player will fail to connect and we redirect to login
+      }
     }
-  }, []);
+  }, [tokenValid]);
 
-  const handleLogout = () => {
-    logout();
-    setToken(null);
+  const handleLogout = async () => {
+    await spotifyLogout();
+    setToken(false);
+    setTokenValid(false);
     setError(null);
   };
 
@@ -68,7 +105,7 @@ export default function Callback() {
 
   return (
     <div>
-      <SpotifyPlayer token={token} />
+      <SpotifyPlayer />
       <button onClick={handleLogout}>Logout</button>
     </div>
   );
