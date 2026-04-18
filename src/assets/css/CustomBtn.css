@@ -25,7 +25,7 @@
 .customize-icon {
     fill: white;
     stroke: black;
-    stroke-width: .3px;
+    stroke-width: .37px;
 }
 .customize-icon:hover {
     filter: drop-shadow(0 0 5px rgb(255, 255, 255));
