@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-// import NavBar from './assets/Navbar';
 import HelpBtn from './assets/HelpBtn';
 
 // ─── Config ───────────────────────────────────────────────────────
@@ -103,7 +102,6 @@ function formatMs(ms) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-// Central Spotify API fetch with error logging
 async function spotifyFetch(url, token, options = {}) {
   const res = await fetch(url, {
     ...options,
@@ -148,7 +146,6 @@ function usePlayer(token) {
   const [error,    setError]    = useState(null);
   const [ready,    setReady]    = useState(false);
 
-  // Create SDK player
   useEffect(() => {
     if (!sdkReady || !token) return;
     const p = new window.Spotify.Player({
@@ -167,7 +164,6 @@ function usePlayer(token) {
     return () => { p.disconnect(); playerRef.current = null; };
   }, [sdkReady, token]);
 
-  // Transfer playback to our device
   useEffect(() => {
     if (!deviceId || !token) return;
     setReady(false);
@@ -185,27 +181,7 @@ function usePlayer(token) {
   const seek       = useCallback(ms => playerRef.current?.seek(ms),        []);
   const setVolume  = useCallback(v  => playerRef.current?.setVolume(v),    []);
 
-  // playTrack: plays a single URI. Returns true on success.
-  const playTrack = useCallback(async (uri) => {
-    const t = tokenRef.current;
-    if (!t || !deviceId || !ready) {
-      console.warn('[playTrack] not ready', { hasToken: !!t, deviceId, ready });
-      return false;
-    }
-    try {
-      await spotifyFetch(
-        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
-        t,
-        { method: 'PUT', body: JSON.stringify({ uris: [uri] }) }
-      );
-      return true;
-    } catch (e) {
-      setError(e.message);
-      return false;
-    }
-  }, [deviceId, ready]);
-
-  return { sdkReady, deviceId, psState, error, ready, togglePlay, nextTrack, prevTrack, seek, setVolume, playTrack };
+  return { sdkReady, deviceId, psState, error, ready, togglePlay, nextTrack, prevTrack, seek, setVolume };
 }
 
 // ─── Hook: useInterpolatedPosition ───────────────────────────────
@@ -230,86 +206,18 @@ function useInterpolatedPosition(psState) {
   return ms;
 }
 
-// ─── Hook: useSearch ─────────────────────────────────────────────
-function useSearch(token) {
-  const [query,   setQuery]   = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const timer = useRef(null);
-
-  useEffect(() => {
-    if (!query.trim()) { setResults([]); return; }
-    clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const data = await spotifyFetch(
-          `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
-          token
-        );
-        setResults(data.tracks?.items ?? []);
-      } catch { setResults([]); }
-      finally  { setLoading(false); }
-    }, 400);
-    return () => clearTimeout(timer.current);
-  }, [query, token]);
-
-  return { query, setQuery, results, loading };
-}
-
-// ─── TrackRow ─────────────────────────────────────────────────────
-function TrackRow({ track, onPlay }) {
-  const art = track.album?.images?.[2]?.url ?? track.album?.images?.[0]?.url;
-  return (
-    <li className="track-row" onClick={onPlay}>
-      {art
-        ? <img src={art} alt="" className="track-thumb" />
-        : <div className="track-thumb placeholder" />
-      }
-      <div className="track-info">
-        <span className="track-name">{track.name}</span>
-        <span className="track-artist">{track.artists?.map(a => a.name).join(', ')}</span>
-      </div>
-      <span className="track-duration">{formatMs(track.duration_ms)}</span>
-    </li>
-  );
-}
-
-// ─── SearchPanel ──────────────────────────────────────────────────
-function SearchPanel({ token, onPlay }) {
-  const { query, setQuery, results, loading } = useSearch(token);
-  return (
-    <div className="panel">
-      <h3>Search</h3>
-      <input
-        className="text-input" type="text" placeholder="Search for a song…"
-        value={query} onChange={e => setQuery(e.target.value)}
-      />
-      {loading && <p className="hint">Searching…</p>}
-      {results.length > 0 && (
-        <ul className="track-list">
-          {results.map(t => <TrackRow key={t.id} track={t} onPlay={() => onPlay(t.uri)} />)}
-        </ul>
-      )}
-      {!loading && query.trim() && results.length === 0 && <p className="hint">No results.</p>}
-    </div>
-  );
-}
-
 // ─── Main Component ───────────────────────────────────────────────
 export default function SpotifyPlayer({ token: propToken }) {
   const token = propToken ?? localStorage.getItem('spotify_token');
 
-  const { sdkReady, deviceId, psState, error, ready, togglePlay, nextTrack, prevTrack, seek, setVolume, playTrack } =
+  const { sdkReady, deviceId, psState, error, ready, togglePlay, nextTrack, prevTrack, seek, setVolume } =
     usePlayer(token);
-
 
   const interpolated = useInterpolatedPosition(psState);
 
-  const [volume,      setVolumeState] = useState(50);
-  const [activePanel, setActivePanel] = useState(null);
-  const [scrubbing,   setScrubbing]   = useState(false);
-  const [scrubMs,     setScrubMs]     = useState(0);
+  const [volume,    setVolumeState] = useState(50);
+  const [scrubbing, setScrubbing]   = useState(false);
+  const [scrubMs,   setScrubMs]     = useState(0);
 
   const track    = psState?.track_window?.current_track;
   const paused   = psState?.paused ?? true;
@@ -321,10 +229,6 @@ export default function SpotifyPlayer({ token: propToken }) {
     setVolumeState(v);
     setVolume(v / 100);
   };
-
-
-
-  const togglePanel = name => setActivePanel(p => p === name ? null : name);
 
   if (error)     return <p className="status-msg">Error: {error}</p>;
   if (!sdkReady) return <p className="status-msg">Loading Spotify SDK…</p>;
@@ -373,19 +277,10 @@ export default function SpotifyPlayer({ token: propToken }) {
         <input type="range" min={0} max={100} value={volume} onChange={handleVolume} />
       </div>
 
-      <hr />
-
-      {/* ── Panel toggles ── */}
-      <div className="panel-toggles">
-        <button onClick={() => togglePanel('search')}>
-          {activePanel === 'search' ? 'Close Search' : '🔍 Search'}
-        </button>
+      {/* ── Canvas ── */}
+      <div className="canvas-row">
+        <button onClick={() => window.open('/canvas', '_blank')}>Go to Canvas</button>
       </div>
-
-      {activePanel === 'search' && (
-        <SearchPanel token={token} onPlay={uri => { playTrack(uri); }} />
-      )}
-
     </div>
   );
 }
