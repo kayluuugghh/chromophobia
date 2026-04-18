@@ -2,7 +2,7 @@
     position: fixed;
     transition: all 0.1s ease-out;
     /* transition: transform 0.05s linear; */
-    width: 60px;
+    width: 80px;
     height: auto;
     pointer-events: none;
     transform: translate(-50%, -50%);

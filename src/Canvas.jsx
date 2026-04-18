@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Meyda from "meyda";
 import './Canvas.css';
 
+
+
 // ── WebSocket server address (must match server.py) ──────────────────────────
 const WS_URL      = "ws://localhost:8765";
 const WS_SEND_MS  = 500;   // how often to send features for mood classification
@@ -35,7 +37,9 @@ export default function Canvas() {
 
   const [listening,   setListening]   = useState(false);
   const [error,       setError]       = useState(null);
-  const [mode,        setMode]        = useState(0);
+
+  //sets default visual to option 4 (cymantics)
+  const [mode,        setMode]        = useState(4);
 
   // ── Mood state ─────────────────────────────────────────────────────────────
   const [mood,        setMood]        = useState(null);  // instant classifier mood
@@ -1231,3 +1235,4 @@ export default function Canvas() {
     </div>
   );
 }
+
