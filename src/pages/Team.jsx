@@ -1,6 +1,6 @@
 import React from "react";
-import './Team.css';
-import NavBar from './assets/Navbar.jsx';
+import '../assets/css/Team.css';
+import NavBar from '../features/Navbar.jsx';
 
 function Team() {
     return (

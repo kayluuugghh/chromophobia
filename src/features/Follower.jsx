@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import pixel from './pixel.png';
-import './Follower.css';
+import pixel from '../assets/images/pixel.png';
+import '../assets/css/Follower.css';
 
 function Follower() {
     const [pixelPosition, setPixelPosition] = useState({ x: 0, y: 0 });

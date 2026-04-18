@@ -27,38 +27,7 @@
     /* transition: 0.3s; */
 }
 
-@media (prefers-color-scheme: dark) {
-    .hamburger .bar {
-        background-color: white;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .hamburger .bar {
-        background-color: black;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .hamburger:hover {
-        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
-    }
-    .hamburger:active {
-        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .hamburger:hover {
-        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
-    }
-    .hamburger:active {
-        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
-    }
-}
-
 /* Navigation links */
-
 .nav-links {
     list-style: none;
     display: none;
@@ -98,38 +67,7 @@
     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
 }
 
-@media (prefers-color-scheme: dark) {
-    .nav-links li a {
-        color: white;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .nav-links li a {
-        color: black;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .nav-links li a:hover {
-        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
-    }
-    .nav-links li a:active {
-        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .nav-links li a:hover {
-        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
-    }
-    .nav-links li a:active {
-        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
-    }
-}
-
 /* Customization Button */
-
 .customize-btn {
     background-color: transparent;
     border: none;
@@ -139,39 +77,7 @@
     z-index: 20;
 }
 
-@media (prefers-color-scheme: dark) {
-    .customize-icon {
-        fill: white;
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .customize-icon {
-        fill: black;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .customize-icon:hover {
-        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
-    }
-    .customize-icon:active {
-        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
-    }
-}
-
-@media (prefers-color-scheme: light) {
-    .customize-icon:hover {
-        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
-    }
-    .customize-icon:active {
-        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
-    }
-}
-
-
 /* About Overlay */
-
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -207,3 +113,62 @@
     right: 10px;
 }
 
+@media (prefers-color-scheme: light) {
+    .nav-links li a {
+        color: black;
+    }
+    .nav-links li a:hover {
+        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
+    }
+    .nav-links li a:active {
+        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
+    }
+    .customize-icon:hover {
+        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
+    }
+    .customize-icon:active {
+        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
+    }
+    .customize-icon {
+        fill: black;
+    }
+    .hamburger:hover {
+        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
+    }
+    .hamburger:active {
+        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
+    }
+    .hamburger .bar {
+        background-color: black;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .nav-links li a {
+        color: white;
+    }
+    .nav-links li a:hover {
+        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+    }
+    .nav-links li a:active {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+    }
+    .hamburger .bar {
+        background-color: white;
+    }
+    .hamburger:hover {
+        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+    }
+    .hamburger:active {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+    }
+    .customize-icon {
+        fill: white;
+    }
+    .customize-icon:hover {
+        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+    }
+    .customize-icon:active {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+    }
+}

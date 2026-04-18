@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Meyda from "meyda";
-import './Canvas.css';
-
-
+import '../assets/css/Canvas.css';
 
 // ── WebSocket server address (must match server.py) ──────────────────────────
 const WS_URL      = "ws://localhost:8765";

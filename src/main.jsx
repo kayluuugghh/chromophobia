@@ -1,15 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import './index.css'
+import './assets/css/index.css'
 
-import Login from './Login.jsx';
-import Home from './Home.jsx';
-import Team from './Team.jsx';
-import Callback from './Callback';
-import SpotifyPlayer from './SpotifyPlayer.jsx';
-import NavBar from './assets/Navbar.jsx';
-import Canvas from './Canvas.jsx';
+import Login from './pages/Login.jsx';
+import Home from './pages/Home.jsx';
+import Team from './pages/Team.jsx';
+import Callback from './pages/Callback.jsx';
+import SpotifyPlayer from './pages/SpotifyPlayer.jsx';
+import NavBar from './features/Navbar.jsx';
+import Canvas from './pages/Canvas.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

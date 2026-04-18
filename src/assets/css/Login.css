@@ -93,11 +93,11 @@
 
 @media (prefers-color-scheme: dark) {
   body {
-    background-image: url(./assets/dark.jpg);
+    background-image: url(../images/dark.jpg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    cursor: url(./assets/firefly1.png), auto;
+    cursor: url(../images/firefly1.png), auto;
   }
   .title {
     font-size: 400%;
@@ -120,11 +120,11 @@
 
 @media (prefers-color-scheme: light) {
   body {
-    background-image: url(./assets/light.jpg);
+    background-image: url(../images/light.jpg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    cursor: url(./assets/butterfly.png), auto;
+    cursor: url(../images/butterfly.png), auto;
   }
   .title {
     font-size: 400%;

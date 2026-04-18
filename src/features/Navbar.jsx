@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { BsQuestionCircle } from "react-icons/bs";
+import { BsBrush } from "react-icons/bs";
+import '../assets/css/Navbar.css';
 import { Link } from "react-router-dom";
-import './HelpBtn.css';
 
-function HelpBtn() {
+function NavBar() {
     const [isOpen, setMenuOpen] = useState(false);
     const [isAboutOpen, setIsAboutOpen] = useState(false); // modal state
-    const handleHelp = () => {alert("Help coming soon.");};
+    const handleCustomization = () => {alert("Customization options coming soon.");};
     const toggleAbout = () => {setIsAboutOpen(!isAboutOpen)};
     const handleMouseEnter = () => setMenuOpen(true);
     const handleMouseLeave = () => setMenuOpen(false);
@@ -32,11 +32,21 @@ function HelpBtn() {
                     <li><Link to="/">Logout</Link></li>
                 </ul>
             </div>
-                {/* Help button */}
-                <button onClick={handleHelp} className="help-btn"><BsQuestionCircle className="help-icon" /></button>
+                {/* Customization button */}
+                <button onClick={handleCustomization} className="customize-btn"><BsBrush className="customize-icon" /></button>
         </nav>
+        {/* About Modal */}
+        {isAboutOpen && (
+            <div className="modal-overlay" onClick={toggleAbout}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={toggleAbout} className="close-btn">X</button>
+                    <h2>About Chromophobia</h2>
+                    <p>*Explain here*</p>
+                </div>
+            </div>
+        )}
         </>
     );
 }
 
-export default HelpBtn;
+export default NavBar;
