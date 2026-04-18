@@ -2,39 +2,67 @@
 @media (prefers-color-scheme: dark) {
     div.transport button {
         background-color: white;
-        color: black
+        color: black;
     }
     div.volume-row label {
-        color: white
+        color: white;
     }
     div.canvas-row button {
         background-color: white;
-        color: black
+        color: black;
     }
     div.now-playing {
-        color: white
+        color: white;
     }
     div.seek-row {
-        color: white
+        color: white;
+    }
+    .status-msg {
+        color: white;
+    }
+    div.now-playing img {
+        box-shadow: white 0px 1px 5px;
     }
 }
 
 @media (prefers-color-scheme: light) {
     div.transport button {
         background-color: black;
-        color: white
+        color: white;
     }
     div.volume-row label {
-        color: black
+        color: black;
     }
     div.canvas-row button {
         background-color: black;
-        color: white
+        color: white;
     }
     div.now-playing {
-        color: black
+        color: black;
     }
     div.seek-row {
-        color: black
+        color: black;
     }
+    .status-msg {
+        color: black;
+    }
+    div.now-playing img {
+        box-shadow: black 0px 1px 5px;
+    }
+}
+
+div.transport button {
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 10px;
+}
+
+div.canvas-row button {
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 10px;
 }

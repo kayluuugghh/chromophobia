@@ -243,7 +243,7 @@ export default function SpotifyPlayer({ token: propToken }) {
       {/* ── Now playing ── */}
       <div className="now-playing">
         {track?.album?.images?.[0]?.url
-          ? <img src={track.album.images[0].url} alt="album art" width={500} height={500} />
+          ? <img src={track.album.images[0].url} alt="album art" width={400} height={400} />
           : <div className="album-placeholder" />
         }
         <p><strong>{track?.name ?? 'Nothing playing'}</strong></p>
