@@ -276,6 +276,11 @@ export default function SpotifyPlayer({ token: propToken }) {
         <label>Volume: {volume}%</label>
         <input type="range" min={0} max={100} value={volume} onChange={handleVolume} />
       </div>
+
+      {/* ── Canvas ── */}
+      <div className="canvas-row">
+        <button onClick={() => window.open('/canvas', '_blank')}>Go to Canvas</button>
+      </div>
     </div>
   );
 }
