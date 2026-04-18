@@ -1,0 +1,81 @@
+@media (prefers-color-scheme: dark) {
+    div.h1 {
+        color: #fff;
+    }
+    div.team-container {
+        color: white;
+    }
+    div.teamTitle {
+        color: white;
+    }
+    body {
+         background-image: url(../images/dark.jpg);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        cursor: url(../images/firefly1.png), auto;
+    }
+    div.team-member img {
+        box-shadow: black 0px 2px 4px;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    div.h1 {
+        color: #000;
+    }
+    div.team-container {
+        color: black;
+    }
+    div.teamTitle {
+        color: black;
+    }
+    body {
+        background-image: url(../images/light.jpg);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        cursor: url(../images/butterfly.png), auto;
+    }
+    div.team-member img {
+        box-shadow: #000 0px 2px 4px;
+    }
+}
+
+.team-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 50px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-self: center;
+}
+
+.team-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.team-member img {
+    width: auto;
+    height: 250px;
+    object-fit: cover;
+}
+
+div.team-member button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+div.team-member button:hover img {
+    filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+}
+
+div.team-member button:active img {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+}
