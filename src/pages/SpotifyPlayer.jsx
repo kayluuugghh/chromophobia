@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import HelpBtn from '../features/HelpBtn';
+import '../assets/css/SpotifyPlayer.css';
 
 // ─── Config ───────────────────────────────────────────────────────
 const CLIENT_ID    = import.meta.env.VITE_CLIENT_ID;
