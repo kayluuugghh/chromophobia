@@ -1,9 +1,95 @@
+@media (prefers-color-scheme: dark) {
+  .shareAudio {
+    background-color: white;
+    color: black;
+  }
+  .instruction {
+    color: white;
+  }
+  div.options p {
+    color: white;
+  }
+  div.moodPanelTitle {
+    color: white;
+  }
+  div.moodWindowNote {
+    color: white;
+  }
+  div.moodHistoryTitle {
+    color: white;
+  }
+  div.wsBadge.wsBadge {
+    color: white;
+  }
+  div.options button {
+    background-color: white;
+    color: black;
+  }
+  div.options select {
+    background-color: transparent;
+    color: white;
+    border: 1px solid currentColor;
+    padding: 5px 10px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 10px;
+}
+}
+
+@media (prefers-color-scheme: light) {
+ .shareAudio {
+    background-color: black;
+    color: white;
+  }
+  .instruction {
+    color: black;
+  }
+  div.options p {
+    color: black;
+  }
+  div.moodPanelTitle {
+    color: black;
+  }
+  div.moodWindowNote {
+    color: black;
+  }
+  div.moodHistoryTitle {
+    color: black;
+  }
+  div.wsBadge.wsBadge {
+    color: black;
+  }
+  div.options button {
+    background-color: black;
+    color: white;
+    
+  }
+  div.options select {
+    background-color: transparent;
+    color: black;
+    border: 1px solid currentColor;
+    padding: 5px 10px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 10px;
+}
+}
+
+div.options button {
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
 .canvasContainer {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
+
 
 #glCanvas{
     width: 100vw;
