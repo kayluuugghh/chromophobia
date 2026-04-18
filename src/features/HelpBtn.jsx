@@ -35,6 +35,23 @@ function HelpBtn() {
                 {/* Help button */}
                 <button onClick={handleHelp} className="help-btn"><BsQuestionCircle className="help-icon" /></button>
         </nav>
+        {/* About Modal */}
+        {isAboutOpen && (
+            <div className="modal-overlay" onClick={toggleAbout}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={toggleAbout} className="close-btn">X</button>
+                    <h2>About Chromophobia</h2>
+                    <p>
+                        Chromophobia is a web based application that pays homage to the music visualizers that dominated 
+                        the late 1990s to early 2000s by replicating the nostalgic visualizations using modern technological
+                        advancements. The software aims to use machine learning to identify patterns such as tempo and 
+                        musical structure to generate visuals that dynamically adapt to the music. The decision to begin 
+                        this project was the result of a collaborative brainstorming and voting process for the Senior Project
+                        course.
+                    </p>
+                </div>
+            </div>
+        )}
         </>
     );
 }
