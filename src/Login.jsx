@@ -72,7 +72,7 @@ function Login() {
 
     return (
         <>
-            <h1>Chromophobia</h1>
+            <h1 class="title">Chromophobia</h1>
             <Follower></Follower>
             <button onClick={loginWithSpotify} className="login-button">
                 Login with Spotify
