@@ -22,26 +22,14 @@
     margin-left: auto;
 }
 
-@media (prefers-color-scheme: light) {
-    .customize-icon:hover {
-        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
-    }
-    .customize-icon:active {
-        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
-    }
-    .customize-icon {
-        fill: black;
-    }
+.customize-icon {
+    fill: white;
+    stroke: black;
+    stroke-width: .3px;
 }
-
-@media (prefers-color-scheme: dark) {
-    .customize-icon {
-        fill: white;
-    }
-    .customize-icon:hover {
-        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
-    }
-    .customize-icon:active {
-        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
-    }
+.customize-icon:hover {
+    filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+}
+.customize-icon:active {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
 }

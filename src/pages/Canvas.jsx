@@ -251,8 +251,8 @@ export default function Canvas() {
   // ── WebGL render loop (unchanged from original) ────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
-    canvas.width  = canvas.offsetWidth  * devicePixelRatio;
-    canvas.height = canvas.offsetHeight * devicePixelRatio;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
     const gl = canvas.getContext("webgl");
     if (!gl) return;
 
@@ -1076,7 +1076,7 @@ export default function Canvas() {
       } : {}}
     >
       <CustomBtn />
-      <canvas id="glCanvas" ref={canvasRef}/>
+      <canvas id="glCanvas" ref={canvasRef} style={{ display: listening ? 'block' : 'none' }} />
 
       {error && <p className="errorMsg">{error}</p>}
 
