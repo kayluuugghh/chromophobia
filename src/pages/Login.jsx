@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import {useNavigate} from 'react-router-dom';
 import { loginWithSpotify } from '../utils/spotifyAuth.js'
-import NavBar from '../features/Navbar.jsx';
 import '../assets/css/Login.css'
 import Follower from '../features/Follower.jsx'
 

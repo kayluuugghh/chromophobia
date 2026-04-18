@@ -1,0 +1,47 @@
+.navbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0.5rem .5rem;
+    background-color: transparent;
+    position: fixed;
+    z-index: 1000;
+    width: 100%;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+}
+
+/* Customization Button */
+.customize-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 20;
+    margin-left: auto;
+}
+
+@media (prefers-color-scheme: light) {
+    .customize-icon:hover {
+        filter: drop-shadow(0 0 5px rgb(176, 173, 195));
+    }
+    .customize-icon:active {
+        filter: drop-shadow(0 0 5px rgba(176, 173, 195));
+    }
+    .customize-icon {
+        fill: black;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .customize-icon {
+        fill: white;
+    }
+    .customize-icon:hover {
+        filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+    }
+    .customize-icon:active {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+    }
+}

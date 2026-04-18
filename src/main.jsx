@@ -8,7 +8,6 @@ import Home from './pages/Home.jsx';
 import Team from './pages/Team.jsx';
 import Callback from './pages/Callback.jsx';
 import SpotifyPlayer from './pages/SpotifyPlayer.jsx';
-import NavBar from './features/Navbar.jsx';
 import Canvas from './pages/Canvas.jsx';
 
 createRoot(document.getElementById('root')).render(

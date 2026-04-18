@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Meyda from "meyda";
 import '../assets/css/Canvas.css';
+import CustomBtn from "../features/CustomBtn";
 
 // ── WebSocket server address (must match server.py) ──────────────────────────
 const WS_URL      = "ws://localhost:8765";
@@ -1074,6 +1075,7 @@ export default function Canvas() {
         transition: "box-shadow 1.2s ease",
       } : {}}
     >
+      <CustomBtn />
       <canvas id="glCanvas" ref={canvasRef}/>
 
       {error && <p className="errorMsg">{error}</p>}

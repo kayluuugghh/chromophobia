@@ -1,11 +1,11 @@
 import React from "react";
 import '../assets/css/Team.css';
-import NavBar from '../features/Navbar.jsx';
+import HelpBtn from "../features/HelpBtn.jsx";
 
 function Team() {
     return (
         <>
-            <NavBar />
+            <HelpBtn />
             <div>
                 <h1>Meet the Team</h1>
             </div>
