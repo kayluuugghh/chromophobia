@@ -1082,7 +1082,7 @@ export default function Canvas() {
 
       {/* ── Controls ── */}
       {!listening ? (
-        <button onClick={startCapture}>Share screen audio</button>
+        <button className="shareAudio" onClick={startCapture}>Share screen audio</button>
       ) : (
         <div className="options">
           <p>Capturing system audio via Meyda</p>
@@ -1097,7 +1097,7 @@ export default function Canvas() {
         </div>
       )}
 
-      <p>Click on the button above, then select the tab labeled "chromophobia"</p>
+      <p className="instruction">Click on the button above, then select the tab labeled "chromophobia"</p>
 
       {/* ── Mood overlay — only visible while listening ── */}
       {listening && (
