@@ -1,9 +1,9 @@
-import NavBar from './assets/Navbar.jsx';
+import CustomBtn from '../features/CustomBtn.jsx';
 
 function Home() {
     return (
         <>
-            <NavBar />
+            <CustomBtn />
             <div>
             </div>
         </>

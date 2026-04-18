@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import HelpBtn from './assets/HelpBtn';
+import HelpBtn from '../features/HelpBtn';
 
 // ─── Config ───────────────────────────────────────────────────────
 const CLIENT_ID    = import.meta.env.VITE_CLIENT_ID;
@@ -279,7 +279,7 @@ export default function SpotifyPlayer({ token: propToken }) {
 
       {/* ── Canvas ── */}
       <div className="canvas-row">
-        <button onClick={() => window.open('/canvas', '_blank')}>Go to Canvas</button>
+        <button onClick={() => window.open('/canvas', '_blank')}>Start Visualization</button>
       </div>
     </div>
   );

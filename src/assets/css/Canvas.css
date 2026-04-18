@@ -6,16 +6,16 @@
 }
 
 #glCanvas{
-    width: 70vw;
-    height: 70vh;
+    width: 100vw;
+    height: 100vh;
+    padding-top: 0%;
 }
 
-body{/
+body{
 
 .canvasContainer {
   transition: box-shadow 1.2s ease;
 }
-
 
 .moodDesc {
   font-size: 0.72rem;
@@ -26,7 +26,6 @@ body{/
   font-style: italic;
   transition: color 1.2s ease;
 }
-
 
 .moodLabel {
   transition: color 1.2s ease, text-shadow 1.2s ease;
@@ -91,7 +90,6 @@ body{/
     flex-direction: column;
 }
 
-
 .canvasContainer {
   transition: box-shadow 1.2s ease;
 }
@@ -132,7 +130,6 @@ body{/
   color: #ffffff44;
   margin-bottom: 3px;
 }
-
 
 .moodLabel--small {
   font-size: 1.1rem !important;
@@ -187,7 +184,6 @@ body{/
   transition: left 0.4s ease;
   pointer-events: none;
 }
-
 
 .moodBarTrack {
   position: relative;

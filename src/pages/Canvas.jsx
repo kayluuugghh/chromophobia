@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Meyda from "meyda";
-import './Canvas.css';
-
-
+import '../assets/css/Canvas.css';
+import CustomBtn from "../features/CustomBtn";
 
 // ── WebSocket server address (must match server.py) ──────────────────────────
 const WS_URL      = "ws://localhost:8765";
@@ -252,8 +251,8 @@ export default function Canvas() {
   // ── WebGL render loop (unchanged from original) ────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
-    canvas.width  = canvas.offsetWidth  * devicePixelRatio;
-    canvas.height = canvas.offsetHeight * devicePixelRatio;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
     const gl = canvas.getContext("webgl");
     if (!gl) return;
 
@@ -1076,7 +1075,8 @@ export default function Canvas() {
         transition: "box-shadow 1.2s ease",
       } : {}}
     >
-      <canvas id="glCanvas" ref={canvasRef}/>
+      <CustomBtn />
+      <canvas id="glCanvas" ref={canvasRef} style={{ display: listening ? 'block' : 'none' }} />
 
       {error && <p className="errorMsg">{error}</p>}
 
@@ -1097,7 +1097,7 @@ export default function Canvas() {
         </div>
       )}
 
-      <p>Check "Share system audio" in the browser dialog</p>
+      <p>Click on the button above, then select the tab labeled "chromophobia"</p>
 
       {/* ── Mood overlay — only visible while listening ── */}
       {listening && (

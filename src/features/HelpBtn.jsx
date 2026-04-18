@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { BsBrush } from "react-icons/bs";
-import './Navbar.css';
+import { BsQuestionCircle } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import '../assets/css/HelpBtn.css';
 
-function NavBar() {
+function HelpBtn() {
     const [isOpen, setMenuOpen] = useState(false);
     const [isAboutOpen, setIsAboutOpen] = useState(false); // modal state
-    const handleCustomization = () => {alert("Customization options coming soon.");};
+    const handleHelp = () => {alert("Help coming soon.");};
     const toggleAbout = () => {setIsAboutOpen(!isAboutOpen)};
     const handleMouseEnter = () => setMenuOpen(true);
     const handleMouseLeave = () => setMenuOpen(false);
@@ -32,8 +32,8 @@ function NavBar() {
                     <li><Link to="/">Logout</Link></li>
                 </ul>
             </div>
-                {/* Customization button */}
-                <button onClick={handleCustomization} className="customize-btn"><BsBrush className="customize-icon" /></button>
+                {/* Help button */}
+                <button onClick={handleHelp} className="help-btn"><BsQuestionCircle className="help-icon" /></button>
         </nav>
         {/* About Modal */}
         {isAboutOpen && (
@@ -41,7 +41,14 @@ function NavBar() {
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                     <button onClick={toggleAbout} className="close-btn">X</button>
                     <h2>About Chromophobia</h2>
-                    <p>*Explain here*</p>
+                    <p>
+                        Chromophobia is a web based application that pays homage to the music visualizers that dominated 
+                        the late 1990s to early 2000s by replicating the nostalgic visualizations using modern technological
+                        advancements. The software aims to use machine learning to identify patterns such as tempo and 
+                        musical structure to generate visuals that dynamically adapt to the music. The decision to begin 
+                        this project was the result of a collaborative brainstorming and voting process for the Senior Project
+                        course.
+                    </p>
                 </div>
             </div>
         )}
@@ -49,4 +56,4 @@ function NavBar() {
     );
 }
 
-export default NavBar;
+export default HelpBtn;
