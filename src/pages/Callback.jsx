@@ -69,7 +69,7 @@ export default function Callback() {
   return (
     <div>
       <SpotifyPlayer token={token} />
-      <button onClick={handleLogout}>Logout</button>
+      {/* <button onClick={handleLogout}>Logout</button> */}
     </div>
   );
 }

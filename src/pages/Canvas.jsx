@@ -1097,7 +1097,7 @@ export default function Canvas() {
         </div>
       )}
 
-      <p>Check "Share system audio" in the browser dialog</p>
+      <p>Click on the button above, then select the tab labeled "chromophobia"</p>
 
       {/* ── Mood overlay — only visible while listening ── */}
       {listening && (
