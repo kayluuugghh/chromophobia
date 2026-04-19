@@ -5,7 +5,7 @@
     padding: 0.5rem .5rem;
     background-color: transparent;
     position: fixed;
-    z-index: 1000;
+    z-index: 100;
     width: 100%;
     top: 0;
     left: 0;
@@ -32,4 +32,363 @@
 }
 .customize-icon:active {
     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+}
+
+.info-drawer {
+    position: fixed;
+    top: 0;
+    right: -450px; /* Hidden state */
+    width: 350px;
+    height: 100vh;
+
+    backdrop-filter: blur(15px);
+    border-left: 1px solid var(--accent, #333);
+    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10000;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-drawer.open {
+    right: 0;
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto; 
+    margin-top: 20px;
+}
+
+.drawer-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ffffff11;
+}
+
+.drawer-section h4 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .shareAudio {
+    background-color: white;
+    color: black;
+  }
+  .instruction {
+    color: white;
+  }
+  div.options p {
+    color: white;
+  }
+  div.moodPanelTitle {
+    color: white;
+  }
+  div.moodWindowNote {
+    color: white;
+  }
+  div.moodHistoryTitle {
+    color: white;
+  }
+  div.wsBadge.wsBadge {
+    color: white;
+  }
+  div.options button {
+    background-color: white;
+    color: black;
+  }
+  div.options select {
+    background-color: transparent;
+    color: white;
+    border: 1px solid currentColor;
+    padding: 5px 10px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+  .info-drawer {
+      background: black;
+      color: white;
+  }
+  .close-x {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+ .shareAudio {
+    background-color: black;
+    color: white;
+  }
+  .instruction {
+    color: black;
+  }
+  div.options p {
+    color: black;
+  }
+  div.moodPanelTitle {
+    color: black;
+  }
+  div.moodWindowNote {
+    color: black;
+  }
+  div.moodHistoryTitle {
+    color: black;
+  }
+  div.wsBadge.wsBadge {
+    color: black;
+  }
+  div.options button {
+    background-color: black;
+    color: white;
+    
+  }
+  div.options select {
+    background-color: transparent;
+    color: black;
+    border: 1px solid currentColor;
+    padding: 5px 10px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+  .info-drawer {
+      background: white;
+      color: black;
+  }
+  .close-x {
+    background-color: transparent;
+    border: 1px solid black;
+    color: black;
+  }
+}
+
+.moodDesc {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: -4px;
+  margin-bottom: 4px;
+  font-style: italic;
+  transition: color 1.2s ease;
+}
+
+.moodLabel {
+  transition: color 1.2s ease, text-shadow 1.2s ease;
+}
+
+/* Bar fill glow transition */
+.moodBarFill {
+  transition: width 0.4s ease, background 1s ease, box-shadow 1s ease;
+}
+
+/* Emoji in bar labels */
+.moodBarLabel {
+  min-width: 100px;
+}
+
+/* ── Mood history timeline ─────────────────────────────────────────────── */
+.moodHistory {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #ffffff18;
+}
+
+.moodHistoryTitle {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ffffff44;
+  margin-bottom: 6px;
+}
+
+.moodHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.moodHistoryEntry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #ffffff06;
+  transition: opacity 0.5s ease;
+}
+
+.moodHistoryTime {
+  font-size: 0.62rem;
+  color: #ffffff44;
+  font-variant-numeric: tabular-nums;
+  margin-left: 8px;
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+}
+
+.options{
+    display: flex;
+    flex-direction: column;
+}
+
+.canvasContainer {
+  transition: box-shadow 1.2s ease;
+}
+
+.moodDualRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+.moodPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.moodPanel--instant {
+  padding-right: 10px;
+}
+
+.moodPanel--avg {
+  padding-left: 10px;
+}
+
+.moodPanelDivider {
+  width: 1px;
+  background: #ffffff18;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.moodPanelTitle {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ffffff44;
+  margin-bottom: 3px;
+  margin-top: 10px;
+}
+
+.moodLabel--small {
+  font-size: 1.1rem !important;
+}
+
+.moodWindowNote {
+  font-size: 0.58rem;
+  color: #ffffff33;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bars section title */
+.moodBarsTitle {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ffffff44;
+  margin-bottom: 5px;
+}
+
+/* Mood description line under the big label */
+.moodDesc {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: -2px;
+  margin-bottom: 2px;
+  font-style: italic;
+  transition: color 1.2s ease;
+}
+
+/* Mood label transition */
+.moodLabel {
+  transition: color 1.2s ease, text-shadow 1.2s ease;
+}
+
+/* Bar fill glow transition */
+.moodBarFill {
+  transition: width 0.8s ease, background 1s ease, box-shadow 1s ease;
+}
+
+/* Thin vertical line marker showing the instant reading on the avg bar */
+.moodBarInstantMarker {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  opacity: 0.7;
+  border-radius: 1px;
+  transform: translateX(-1px);
+  transition: left 0.4s ease;
+  pointer-events: none;
+}
+
+.moodBarTrack {
+  position: relative;
+}
+
+/* Emoji in bar labels */
+.moodBarLabel {
+  min-width: 108px;
+}
+
+/* ── Mood history timeline ─────────────────────────────────────────────── */
+.moodHistory {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #ffffff18;
+}
+
+.moodHistoryTitle {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ffffff44;
+  margin-bottom: 6px;
+}
+
+.moodHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.moodHistoryEntry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #ffffff06;
+  transition: opacity 0.5s ease;
+}
+
+.moodHistoryTime {
+  font-size: 0.62rem;
+  color: #ffffff44;
+  font-variant-numeric: tabular-nums;
+  margin-left: 8px;
 }
