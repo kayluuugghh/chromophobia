@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import SpotifyPlayer from './SpotifyPlayer';
 import { loginWithSpotify, getCodeFromUrl, exchangeCodeForToken, getValidToken, logout } from '../utils/spotifyAuth.js';
-import Login from './Login';
+import Login from './Login.jsx';
 
 export default function Callback() {
   const [token, setToken]     = useState(() => localStorage.getItem('spotify_token'));
