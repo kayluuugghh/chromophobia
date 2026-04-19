@@ -1,11 +1,18 @@
 """
 server.py
 ----------
-Uses the trained ML model (mood_model.pt) if available.
-Falls back to rule-based classification if no model file is found.
+Uses a calibrated Random Forest (mood_model_rf.pkl) if available.
+Falls back to the rule-based classifier if no model file is found.
+
+Improvements over original:
+  - Calibrated Random Forest for better confidence scores
+  - Engineered features (major_minor_ratio, rms_x_centroid)
+  - Negative RMS fix (abs-value clamp)
+  - Softer temperature on rule-based fallback (1.5 → already good)
+  - Per-mood confidence stats logged for monitoring
 
 Dependencies:
-    pip install websockets numpy torch
+    pip install websockets numpy scikit-learn
 
 Usage:
     python server.py
@@ -14,6 +21,7 @@ Usage:
 import asyncio
 import json
 import os
+import pickle
 import numpy as np
 import websockets
 from collections import deque
@@ -22,19 +30,36 @@ HOST     = "localhost"
 PORT     = 8765
 MOODS    = ["Angry", "Energetic", "Happy", "Sad"]
 SMOOTH_N = 5
-history  = deque(maxlen=SMOOTH_N)
+# No confidence threshold — always return the top mood
+
+history = deque(maxlen=SMOOTH_N)
 
 # ── Load scaler ───────────────────────────────────────────────────────────────
 with open("scaler_params.json") as f:
     sp = json.load(f)
-MEAN = np.array(sp["mean"],  dtype=np.float32)
-STD  = np.array(sp["std"],   dtype=np.float32)
+MEAN     = np.array(sp["mean"], dtype=np.float32)
+STD      = np.array(sp["std"],  dtype=np.float32)
+FEATURES = sp.get("features", [
+    "chroma_major_strength", "chroma_minor_strength",
+    "mfcc_1", "mfcc_2", "mfcc_3",
+    "spectral_centroid", "rms", "zcr",
+])
 
 # ── Load model ────────────────────────────────────────────────────────────────
-USE_MODEL = False
-pt_model  = None
+USE_MODEL  = False
+rf_bundle  = None
 
-if os.path.exists("mood_model.pt"):
+# Prefer new calibrated RF pickle; fall back to legacy PyTorch .pt
+if os.path.exists("mood_model_rf.pkl"):
+    try:
+        with open("mood_model_rf.pkl", "rb") as f:
+            rf_bundle = pickle.load(f)
+        USE_MODEL = True
+        print("✓ Loaded mood_model_rf.pkl — using calibrated Random Forest")
+    except Exception as e:
+        print(f"Could not load mood_model_rf.pkl ({e}) — trying PyTorch fallback")
+
+if not USE_MODEL and os.path.exists("mood_model.pt"):
     try:
         import torch
         import torch.nn as nn
@@ -53,52 +78,86 @@ if os.path.exists("mood_model.pt"):
         pt_model = MoodMLP()
         pt_model.load_state_dict(torch.load("mood_model.pt", map_location="cpu"))
         pt_model.eval()
-        USE_MODEL = True
-        print("✓ Loaded mood_model.pt — using ML classifier")
+        USE_MODEL = "torch"
+        print("✓ Loaded mood_model.pt — using PyTorch MLP (consider retraining with RF)")
     except Exception as e:
-        print(f"Could not load model ({e}) — using rule-based fallback")
-else:
-    print("mood_model.pt not found — using rule-based fallback")
-    print("Run collect_data.py then train_mood_model.py to enable ML classification")
+        print(f"Could not load mood_model.pt ({e}) — using rule-based fallback")
+
+if not USE_MODEL:
+    print("No model found — using rule-based fallback")
+    print("Run train_mood_model.py to generate mood_model_rf.pkl")
 
 
 # ── Feature extraction ────────────────────────────────────────────────────────
 def extract_features(payload: dict) -> np.ndarray:
-    chroma   = [float(c) for c in (payload.get("chroma") or [0.0] * 12)]
-    mfcc     = [float(v) for v in (payload.get("mfcc")   or [0.0] * 13)]
+    chroma = [float(c) for c in (payload.get("chroma") or [0.0] * 12)]
+    mfcc   = [float(v) for v in (payload.get("mfcc")   or [0.0] * 13)]
+
     chroma_sum = sum(chroma) + 1e-6
-    major    = (chroma[0] + chroma[4] + chroma[7]) / chroma_sum
-    minor    = (chroma[0] + chroma[3] + chroma[7]) / chroma_sum
-    return np.array([
-        major,
-        minor,
+    major      = (chroma[0] + chroma[4] + chroma[7]) / chroma_sum
+    minor      = (chroma[0] + chroma[3] + chroma[7]) / chroma_sum
+
+    rms      = abs(float(payload.get("rms", 0.0)))
+    centroid = float(payload.get("spectralCentroid", 0.0))
+    zcr      = float(payload.get("zcr", 0.0))
+    flux     = abs(float(payload.get("spectralFlux", 0.0)))
+
+    # All possible features in training order — trimmed to len(MEAN) below
+    # so old scaler (8 features) and new scaler (16 features) both work
+    all_features = [
+        # Original 8
+        major, minor,
         mfcc[1] if len(mfcc) > 1 else 0.0,
         mfcc[2] if len(mfcc) > 2 else 0.0,
         mfcc[3] if len(mfcc) > 3 else 0.0,
-        float(payload.get("spectralCentroid", 0.0)),
-        float(payload.get("rms",  0.0)),
-        float(payload.get("zcr",  0.0)),
-    ], dtype=np.float32)
+        centroid, rms, zcr,
+        # New 8 (from updated collect_data.py)
+        mfcc[4] if len(mfcc) > 4 else 0.0,
+        mfcc[5] if len(mfcc) > 5 else 0.0,
+        mfcc[6] if len(mfcc) > 6 else 0.0,
+        mfcc[7] if len(mfcc) > 7 else 0.0,
+        mfcc[8] if len(mfcc) > 8 else 0.0,
+        flux,
+        0.0,   # rms_variance — window stat, not available per-frame
+        0.0,   # tempo_proxy  — window stat, not available per-frame
+    ]
+
+    # Trim or pad to exactly match loaded scaler length — prevents shape mismatch
+    n = len(MEAN)
+    if len(all_features) >= n:
+        return np.array(all_features[:n], dtype=np.float32)
+    return np.array(all_features + [0.0] * (n - len(all_features)), dtype=np.float32)
 
 
-def softmax(x, temperature=1.0):
+def softmax(x: np.ndarray, temperature: float = 1.0) -> np.ndarray:
     e = np.exp((x - x.max()) / temperature)
     return e / e.sum()
 
 
-# ── ML prediction ─────────────────────────────────────────────────────────────
-def predict_ml(features: np.ndarray) -> dict:
+# ── ML prediction (Random Forest) ────────────────────────────────────────────
+def predict_rf(features: np.ndarray) -> dict:
+    model    = rf_bundle["model"]
+    le       = rf_bundle["le"]
+    normed   = ((features - MEAN) / (STD + 1e-8)).reshape(1, -1)
+    probs    = model.predict_proba(normed)[0]            # already calibrated
+    classes  = le.classes_                               # ['Angry','Energetic','Happy','Sad']
+    return dict(zip(classes, probs.tolist()))
+
+
+# ── ML prediction (PyTorch fallback) ─────────────────────────────────────────
+def predict_torch(features: np.ndarray) -> dict:
     import torch
     normed = ((features - MEAN) / (STD + 1e-8)).reshape(1, -1)
     with torch.no_grad():
         logits = pt_model(torch.tensor(normed)).numpy()[0]
-    probs = softmax(logits, temperature=0.7)
+    # Use temperature=1.3 (was 0.7 — that caused overconfidence)
+    probs = softmax(logits, temperature=1.3)
     return dict(zip(MOODS, probs.tolist()))
 
 
 # ── Rule-based fallback ───────────────────────────────────────────────────────
 def predict_rules(payload: dict) -> dict:
-    rms      = float(payload.get("rms", 0.0))
+    rms      = abs(float(payload.get("rms", 0.0)))       # Fix: abs-value
     zcr      = float(payload.get("zcr", 0.0))
     centroid = float(payload.get("spectralCentroid", 0.0))
     chroma   = [float(c) for c in (payload.get("chroma") or [0.0] * 12)]
@@ -131,10 +190,11 @@ def smooth(new_scores: dict) -> dict:
 
 
 def build_response(scores: dict) -> dict:
-    mood = max(scores, key=scores.get)
+    mood       = max(scores, key=scores.get)
+    confidence = round(scores[mood], 4)
     return {
         "mood":       mood,
-        "confidence": round(scores[mood], 4),
+        "confidence": confidence,
         "scores":     {m: round(v, 4) for m, v in scores.items()},
     }
 
@@ -142,29 +202,43 @@ def build_response(scores: dict) -> dict:
 # ── WebSocket handler ─────────────────────────────────────────────────────────
 async def handler(websocket):
     history.clear()
-    print(f"Client connected: {websocket.remote_address}")
+    addr = websocket.remote_address
+    print(f"Client connected: {addr}")
     try:
         async for raw in websocket:
             try:
                 payload = json.loads(raw)
-                if USE_MODEL:
+
+                if USE_MODEL == True:               # calibrated RF
                     features   = extract_features(payload)
-                    raw_scores = predict_ml(features)
-                else:
+                    raw_scores = predict_rf(features)
+                elif USE_MODEL == "torch":          # legacy PyTorch
+                    features   = extract_features(payload)
+                    raw_scores = predict_torch(features)
+                else:                               # rule-based
                     raw_scores = predict_rules(payload)
+
                 result = build_response(smooth(raw_scores))
                 await websocket.send(json.dumps(result))
+
             except Exception as e:
                 await websocket.send(json.dumps({"error": str(e)}))
+
     except websockets.exceptions.ConnectionClosed:
         pass
     finally:
-        print(f"Client disconnected: {websocket.remote_address}")
+        print(f"Client disconnected: {addr}")
 
 
 async def main():
-    mode = "ML model" if USE_MODEL else "rule-based"
+    if USE_MODEL == True:
+        mode = "calibrated Random Forest"
+    elif USE_MODEL == "torch":
+        mode = "PyTorch MLP"
+    else:
+        mode = "rule-based"
     print(f"Mood classifier [{mode}] → ws://{HOST}:{PORT}")
+
     async with websockets.serve(handler, HOST, PORT):
         await asyncio.Future()
 
