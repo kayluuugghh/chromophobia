@@ -1082,11 +1082,13 @@ export default function Canvas() {
 
       {/* ── Controls ── */}
       {!listening ? (
-        <button className="shareAudio" onClick={startCapture}>Share screen audio</button>
+        <div>
+          <button className="shareAudio" onClick={startCapture}>Share screen audio</button>
+          <p className="instruction">Click on the button above, then select the tab labeled "chromophobia"</p>
+        </div>
       ) : (
         <div className="options">
-          <p>Capturing system audio via Meyda</p>
-          <button onClick={stopCapture}>Stop</button>
+          <button onClick={stopCapture}>Stop sharing audio</button>
           <select value={mode} onChange={e => setMode(Number(e.target.value))}>
             <option value={0}>Spectrum Analyzer</option>
             <option value={1}>Constellation</option>
@@ -1097,41 +1099,12 @@ export default function Canvas() {
         </div>
       )}
 
-      <p className="instruction">Click on the button above, then select the tab labeled "chromophobia"</p>
-
       {/* ── Mood overlay — only visible while listening ── */}
       {listening && (
         <div className="moodOverlay" style={{ "--accent": accentColor }}>
 
-          {/* WS connection badge */}
-          <div className={`wsBadge wsBadge--${wsStatus}`}>
-            { wsStatus === "connected"    && "● classifier live" }
-            { wsStatus === "disconnected" && "○ classifier offline" }
-            { wsStatus === "error"        && "✕ classifier error" }
-          </div>
-
           {/* ── Dual mood display: instant vs 10-min average ── */}
           <div className="moodDualRow">
-
-            {/* Instant (raw classifier) */}
-            <div className="moodPanel moodPanel--instant">
-              <div className="moodPanelTitle">now</div>
-              <div
-                className="moodLabel moodLabel--small"
-                style={{
-                  color: mood ? MOOD_COLORS[mood] : "#ffffff44",
-                  textShadow: mood ? `0 0 12px ${MOOD_COLORS[mood]}88` : "none",
-                  transition: "color 0.4s ease, text-shadow 0.4s ease",
-                }}
-              >
-                { mood ? `${MOOD_EMOJI[mood]} ${mood}` : "—" }
-              </div>
-              { mood && (
-                <div className="moodConfidence">
-                  { (confidence * 100).toFixed(1) }% conf
-                </div>
-              )}
-            </div>
 
             <div className="moodPanelDivider"/>
 
@@ -1203,31 +1176,6 @@ export default function Canvas() {
                   </div>
                 );
               })}
-            </div>
-          )}
-
-          {/* Mood history timeline */}
-          { moodHistory.length > 0 && (
-            <div className="moodHistory">
-              <div className="moodHistoryTitle">mood history</div>
-              <div className="moodHistoryList">
-                { [...moodHistory].reverse().map((entry, i) => (
-                  <div
-                    key={i}
-                    className="moodHistoryEntry"
-                    style={{
-                      opacity: 1 - i * 0.08,
-                      borderLeft: `2px solid ${MOOD_COLORS[entry.mood]}`,
-                      paddingLeft: "6px",
-                    }}
-                  >
-                    <span style={{ color: MOOD_COLORS[entry.mood] }}>
-                      {MOOD_EMOJI[entry.mood]} {entry.mood}
-                    </span>
-                    <span className="moodHistoryTime">{fmtTime(entry.time)}</span>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
         </div>
