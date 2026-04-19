@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import SpotifyPlayer from './SpotifyPlayer';
 import { loginWithSpotify, getCodeFromUrl, exchangeCodeForToken, getValidToken, logout } from '../utils/spotifyAuth.js';
+import Login from './Login';
 
 export default function Callback() {
   const [token, setToken]     = useState(() => localStorage.getItem('spotify_token'));
@@ -61,8 +62,7 @@ export default function Callback() {
 
   if (!token) return (
     <div>
-      <h2>Spotify Player</h2>
-      <button onClick={loginWithSpotify}>Login with Spotify</button>
+      <Login/>
     </div>
   );
 

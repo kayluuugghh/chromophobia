@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import HelpBtn from '../features/HelpBtn';
 import '../assets/css/SpotifyPlayer.css';
+import { FaStepBackward, FaPlayCircle, FaPauseCircle, FaStepForward, FaVolumeDown} from 'react-icons/fa';
 
 // ─── Config ───────────────────────────────────────────────────────
 const CLIENT_ID    = import.meta.env.VITE_CLIENT_ID;
@@ -246,9 +247,16 @@ export default function SpotifyPlayer({ token: propToken }) {
           ? <img src={track.album.images[0].url} alt="album art" width={400} height={400} />
           : <div className="album-placeholder" />
         }
-        <p><strong>{track?.name ?? 'Nothing playing'}</strong></p>
-        <p>{track?.artists?.map(a => a.name).join(', ') ?? '—'}</p>
-        <p>{track?.album?.name ?? ''}</p>
+        <p className="track-name"><strong>{track?.name ?? 'Nothing playing'}</strong></p>
+        <p className="album-name">{track?.album?.name ?? ''}</p>
+        <p className="artist-name">{track?.artists?.map(a => a.name).join(', ') ?? '—'}</p>
+      </div>
+
+      {/* ── Transport ── */}
+      <div className="transport">
+        <button onClick={prevTrack}><FaStepBackward size="2em" /></button>
+        <button onClick={togglePlay}>{paused ? <FaPlayCircle size="2em" /> : <FaPauseCircle size="2em" />}</button>
+        <button onClick={nextTrack}><FaStepForward size="2em" /></button>
       </div>
 
       {/* ── Seek bar ── */}
@@ -261,21 +269,15 @@ export default function SpotifyPlayer({ token: propToken }) {
           onChange={e => setScrubMs(Number(e.target.value))}
           onMouseUp={e => { setScrubbing(false); seek(Number(e.target.value)); }}
           onTouchEnd={e => { setScrubbing(false); seek(Number(e.target.value)); }}
+          className="seek-slider"
         />
         <span>{formatMs(duration)}</span>
       </div>
 
-      {/* ── Transport ── */}
-      <div className="transport">
-        <button onClick={prevTrack}>Previous</button>
-        <button onClick={togglePlay}>{paused ? 'Play' : 'Pause'}</button>
-        <button onClick={nextTrack}>Next</button>
-      </div>
-
       {/* ── Volume ── */}
       <div className="volume-row">
-        <label>Volume: {volume}%</label>
-        <input type="range" min={0} max={100} value={volume} onChange={handleVolume} />
+        <i><FaVolumeDown size="1.5em" /></i>
+        <input type="range" min={0} max={100} value={volume} onChange={handleVolume} className="volume-slider" />
       </div>
 
       {/* ── Canvas ── */}
