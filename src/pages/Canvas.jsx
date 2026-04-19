@@ -1066,121 +1066,36 @@ export default function Canvas() {
   const fmtTime = d =>
     `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
 
+
   return (
-    <div
-      className="canvasContainer"
-      style={(avgMood || mood) ? {
-        "--canvas-glow": accentColor,
-        boxShadow: `0 0 40px 8px ${accentColor}55, 0 0 0 2px ${accentColor}33`,
-        transition: "box-shadow 1.2s ease",
-      } : {}}
-    >
-      <CustomBtn />
-      <canvas id="glCanvas" ref={canvasRef} style={{ display: listening ? 'block' : 'none' }} />
+      <div
+        className="canvasContainer"
+        style={(avgMood || mood) ? {
+          "--canvas-glow": accentColor,
+          boxShadow: `0 0 40px 8px ${accentColor}55, 0 0 0 2px ${accentColor}33`,
+          transition: "box-shadow 1.2s ease",
+        } : {}}
+      >
+        <CustomBtn stats={{ 
+          mood, avgMood, accentColor, wsStatus, confidence, 
+          scores, avgScores, moodHistory, listening, mode,
+          MOOD_EMOJI, MOOD_DESC, MOODS_ORDER, MOOD_COLORS,
+          scoreWindowRef }} 
+          actions={{ startCapture, stopCapture, setMode }}
+        />
 
-      {error && <p className="errorMsg">{error}</p>}
-
-      {/* ── Controls ── */}
-      {!listening ? (
-        <div>
-          <button className="shareAudio" onClick={startCapture}>Share screen audio</button>
-          <p className="instruction">Click on the button above, then select the tab labeled "chromophobia"</p>
-        </div>
-      ) : (
-        <div className="options">
-          <button onClick={stopCapture}>Stop sharing audio</button>
-          <select value={mode} onChange={e => setMode(Number(e.target.value))}>
-            <option value={0}>Spectrum Analyzer</option>
-            <option value={1}>Constellation</option>
-            <option value={2}>Aurora Plasma</option>
-            <option value={3}>Ferrofluid</option>
-            <option value={4}>Cymatics + Reaction-Diffusion</option>
-          </select>
-        </div>
-      )}
-
-      {/* ── Mood overlay — only visible while listening ── */}
-      {listening && (
-        <div className="moodOverlay" style={{ "--accent": accentColor }}>
-
-          {/* ── Dual mood display: instant vs 10-min average ── */}
-          <div className="moodDualRow">
-
-            <div className="moodPanelDivider"/>
-
-            {/* 10-minute average — this drives the visuals */}
-            <div className="moodPanel moodPanel--avg">
-              <div className="moodPanelTitle">10-min avg ✦ visuals</div>
-              <div
-                className="moodLabel"
-                style={{
-                  color: accentColor,
-                  textShadow: `0 0 18px ${accentColor}99`,
-                  transition: "color 1.2s ease, text-shadow 1.2s ease",
-                }}
-              >
-                { avgMood ? `${MOOD_EMOJI[avgMood]} ${avgMood}` : "—" }
-              </div>
-              { avgMood && (
-                <div
-                  className="moodDesc"
-                  style={{ color: accentColor + "bb", transition: "color 1.2s ease" }}
-                >
-                  visuals are {MOOD_DESC[avgMood]}
-                </div>
-              )}
-              <div className="moodWindowNote">
-                { scoreWindowRef.current.length } samples · last {
-                  scoreWindowRef.current.length
-                    ? Math.ceil((Date.now() - scoreWindowRef.current[0].ts) / 1000)
-                    : 0
-                }s
-              </div>
-            </div>
-          </div>
-
-          {/* Score bars — show averaged scores (what drives visuals) */}
-          { avgMood && (
-            <div className="moodBars">
-              <div className="moodBarsTitle">10-min score average</div>
-              { MOODS_ORDER.map(m => {
-                const pct  = ((avgScores[m]  ?? 0) * 100).toFixed(1);
-                const pctNow = ((scores[m] ?? 0) * 100).toFixed(1);
-                const isWinner = m === avgMood;
-                return (
-                  <div key={m} className="moodBarRow">
-                    <span className="moodBarLabel">
-                      {MOOD_EMOJI[m]} {m}
-                    </span>
-                    <div className="moodBarTrack">
-                      {/* Averaged bar (solid) */}
-                      <div
-                        className="moodBarFill"
-                        style={{
-                          width: `${pct}%`,
-                          background: isWinner ? MOOD_COLORS[m] : "#ffffff22",
-                          boxShadow: isWinner ? `0 0 8px ${MOOD_COLORS[m]}` : "none",
-                          transition: "width 0.8s ease, background 1s ease, box-shadow 1s ease",
-                        }}
-                      />
-                      {/* Instant marker (thin line showing current reading) */}
-                      <div
-                        className="moodBarInstantMarker"
-                        style={{
-                          left: `${pctNow}%`,
-                          background: MOOD_COLORS[m],
-                        }}
-                      />
-                    </div>
-                    <span className="moodBarPct">{pct}%</span>
-                  </div>
-                );
-              })}
+          {/* ── Controls ── */}
+          {!listening && (
+            <div className="initial-setup"> 
+              <button className="shareAudio" onClick={startCapture}>Share screen audio</button>
+              <p className="instruction">Click on the button above, then select the tab labeled "chromophobia"</p>
             </div>
           )}
+
+          <canvas id="glCanvas" ref={canvasRef} style={{ display: listening ? 'block' : 'none' }} />
+
+          {error && <p className="errorMsg">{error}</p>}
         </div>
-      )}
-    </div>
   );
 }
 
