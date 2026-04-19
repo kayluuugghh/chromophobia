@@ -1,12 +1,19 @@
 """
 train_mood_model.py
 --------------------
-Trains a MLP mood classifier.
-Uses real_mood_data.csv (collected via collect_data.py) if it exists,
-otherwise falls back to hot100_simplified_mood.csv.
+Trains a Random Forest mood classifier on merged old + new data.
+
+Key design decisions:
+  - Uses Random Forest (not MLP) — better calibrated confidence scores
+  - Excludes rms_variance and tempo_proxy — these are window-level stats
+    computed in collect_data.py but server.py sends 0 for them every frame,
+    which causes the model to misclassify live audio as Sad
+  - Old data missing new feature columns is filled with per-mood means
+    from new data (not 0) — zero-fill makes old rows look like Sad
+  - Saves mood_model_rf.pkl (not mood_model.pt) — server.py loads this first
 
 Usage:
-    pip install torch scikit-learn pandas numpy
+    pip install scikit-learn pandas numpy
     python train_mood_model.py
 """
 
@@ -14,26 +21,37 @@ import json
 import os
 import numpy as np
 import pandas as pd
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.utils import resample
 from sklearn.metrics import classification_report
+import pickle
 
-# ── 1. Load data — prefer real collected data ─────────────────────────────────
-REAL_CSV      = "real_mood_data_extended.csv"
+# ── 1. Load data ──────────────────────────────────────────────────────────────
+COMBINED_CSV  = "combined_mood_data.csv"
+NEW_CSV       = "real_mood_data.csv"
 SYNTHETIC_CSV = "hot100_simplified_mood.csv"
 
-if os.path.exists(REAL_CSV):
-    CSV_PATH = REAL_CSV
-    print(f"✓ Using real collected data: {REAL_CSV}")
-else:
-    CSV_PATH = SYNTHETIC_CSV
-    print(f"⚠  real_mood_data.csv not found — using synthetic data: {SYNTHETIC_CSV}")
-    print("   Run collect_data.py to gather real audio data for better results.\n")
+old_df = None
+new_df = None
 
+if os.path.exists(COMBINED_CSV):
+    old_df = pd.read_csv(COMBINED_CSV)
+    print(f"✓ Loaded base data: {COMBINED_CSV} ({len(old_df)} rows)")
+if os.path.exists(NEW_CSV):
+    new_df = pd.read_csv(NEW_CSV)
+    print(f"✓ Loaded new collected data: {NEW_CSV} ({len(new_df)} rows)")
+if old_df is None and new_df is None:
+    old_df = pd.read_csv(SYNTHETIC_CSV)
+    print(f"⚠  No real data found — using synthetic: {SYNTHETIC_CSV}")
+
+# ── Feature columns ───────────────────────────────────────────────────────────
+# rms_variance and tempo_proxy are intentionally excluded:
+# collect_data.py computes them over a 5-second window, but server.py
+# processes one frame at a time and sends 0.0 for both every prediction.
+# Training on them (even with smart fill) causes live mismatch errors.
 FEATURE_COLS = [
     "chroma_major_strength",
     "chroma_minor_strength",
@@ -43,22 +61,55 @@ FEATURE_COLS = [
     "spectral_centroid",
     "rms",
     "zcr",
+    "mfcc_4",
+    "mfcc_5",
+    "mfcc_6",
+    "mfcc_7",
+    "mfcc_8",
+    "spectral_flux",
+    # rms_variance  <- excluded: window stat, not available per-frame in server
+    # tempo_proxy   <- excluded: window stat, not available per-frame in server
 ]
 LABEL_COL = "mood"
 MOODS     = ["Angry", "Energetic", "Happy", "Sad"]
 
-df = pd.read_csv(CSV_PATH)
+# ── 2. Smart-fill old data new features with per-mood means ───────────────────
+# Zero-fill makes old rows look like Sad (spectral_flux=0 < Sad mean of 0.099)
+# Instead fill each old row with the per-mood mean from new collected data
+NEW_FEATURES = ["mfcc_4", "mfcc_5", "mfcc_6", "mfcc_7", "mfcc_8", "spectral_flux"]
 
-# Drop any extra columns (e.g. timestamp from collect_data.py)
-df = df[[c for c in FEATURE_COLS + [LABEL_COL] if c in df.columns]]
+if old_df is not None and new_df is not None:
+    new_present = [f for f in NEW_FEATURES if f in new_df.columns]
+    mood_means  = new_df.groupby(LABEL_COL)[new_present].mean()
 
-# Drop rows with missing mood or features
-df = df.dropna(subset=[LABEL_COL] + FEATURE_COLS)
+    for mood in old_df[LABEL_COL].unique():
+        mask = old_df[LABEL_COL] == mood
+        for f in new_present:
+            fill_val = mood_means.loc[mood, f] if mood in mood_means.index else 0.0
+            if f not in old_df.columns:
+                old_df.loc[mask, f] = fill_val
+            else:
+                old_df.loc[mask, f] = old_df.loc[mask, f].fillna(fill_val)
 
-# Only keep known moods
+    print("✓ Old data new features filled with per-mood means (not zeros)")
+
+# ── 3. Merge ──────────────────────────────────────────────────────────────────
+frames = [df for df in [old_df, new_df] if df is not None]
+df = pd.concat(frames, ignore_index=True)
+
+# Fix negative RMS
+if "rms" in df.columns:
+    df["rms"] = df["rms"].abs()
+
+# Only keep feature cols that actually exist in the data
+FEATURE_COLS = [c for c in FEATURE_COLS if c in df.columns]
+print(f"\nTraining on {len(FEATURE_COLS)} features: {FEATURE_COLS}")
+print(f"Combined total: {len(df)} rows\n")
+
+df = df[FEATURE_COLS + [LABEL_COL]].dropna(subset=[LABEL_COL] + FEATURE_COLS)
 df = df[df[LABEL_COL].isin(MOODS)].reset_index(drop=True)
 
-print("\nClass distribution before balancing:")
+print("Class distribution before balancing:")
 print(df[LABEL_COL].value_counts())
 print(f"Total rows: {len(df)}\n")
 
@@ -66,7 +117,7 @@ if len(df) < 20:
     print("ERROR: Not enough data to train. Collect more rows with collect_data.py")
     exit(1)
 
-# ── 2. Balance dataset ────────────────────────────────────────────────────────
+# ── 4. Balance dataset ────────────────────────────────────────────────────────
 max_count = df[LABEL_COL].value_counts().max()
 balanced  = [
     resample(df[df[LABEL_COL] == c], replace=True,
@@ -79,117 +130,56 @@ print("Class distribution after balancing:")
 print(df[LABEL_COL].value_counts())
 print()
 
-# ── 3. Encode ─────────────────────────────────────────────────────────────────
-X_raw = df[FEATURE_COLS].values.astype(np.float32)
-le    = LabelEncoder().fit(MOODS)
-y     = le.transform(df[LABEL_COL]).astype(np.int64)
-
-# ── 4. Normalise ──────────────────────────────────────────────────────────────
+# ── 5. Encode + normalise ─────────────────────────────────────────────────────
+X_raw  = df[FEATURE_COLS].values.astype(np.float32)
+le     = LabelEncoder().fit(MOODS)
+y      = le.transform(df[LABEL_COL]).astype(np.int64)
 scaler = StandardScaler()
-X      = scaler.fit_transform(X_raw).astype(np.float32)
+X      = scaler.fit_transform(X_raw)
 
-with open("scaler_params.json", "w") as f:
-    json.dump({
-        "mean":         scaler.mean_.tolist(),
-        "std":          scaler.scale_.tolist(),
-        "feature_cols": FEATURE_COLS,
-        "moods":        MOODS,
-    }, f, indent=2)
-print("✓ scaler_params.json written")
+# ── 6. Cross-validate before saving ──────────────────────────────────────────
+print("Running 5-fold cross-validation...")
+cv    = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+rf_cv = CalibratedClassifierCV(
+    RandomForestClassifier(n_estimators=200, min_samples_leaf=3, random_state=42),
+    method="isotonic", cv=5
+)
+scores = cross_val_score(rf_cv, X, y, cv=cv, scoring="accuracy")
+print(f"CV accuracy: {scores.mean():.3f} +/- {scores.std():.3f}\n")
 
-# ── 5. Split ──────────────────────────────────────────────────────────────────
+# ── 7. Train final model ──────────────────────────────────────────────────────
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
-train_loader = DataLoader(TensorDataset(torch.tensor(X_train), torch.tensor(y_train)),
-                          batch_size=16, shuffle=True)
-test_loader  = DataLoader(TensorDataset(torch.tensor(X_test),  torch.tensor(y_test)),
-                          batch_size=16)
-
-# ── 6. Model ──────────────────────────────────────────────────────────────────
-class MoodMLP(nn.Module):
-    def __init__(self, in_features=8, num_classes=4):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(in_features, 64),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(32, num_classes),
-        )
-    def forward(self, x):
-        return self.net(x)
-
-model = MoodMLP()
-
-# ── 7. Weighted loss ──────────────────────────────────────────────────────────
-orig_counts   = pd.read_csv(CSV_PATH)[LABEL_COL].value_counts()
-total         = orig_counts.sum()
-class_weights = torch.tensor(
-    [total / orig_counts.get(m, 1) for m in MOODS], dtype=torch.float32
+rf_final = CalibratedClassifierCV(
+    RandomForestClassifier(n_estimators=200, min_samples_leaf=3, random_state=42),
+    method="isotonic", cv=5
 )
-class_weights = class_weights / class_weights.sum() * len(MOODS)
-print("Class weights:", {m: round(w.item(), 3) for m, w in zip(MOODS, class_weights)})
+rf_final.fit(X_train, y_train)
 
-criterion = nn.CrossEntropyLoss(weight=class_weights)
-optimiser  = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
-scheduler  = torch.optim.lr_scheduler.StepLR(optimiser, step_size=30, gamma=0.5)
+preds = rf_final.predict(X_test)
+print("Classification report:")
+print(classification_report(y_test, preds, target_names=MOODS))
 
-# ── 8. Train ──────────────────────────────────────────────────────────────────
-EPOCHS = 150
+# ── 8. Save scaler + model ────────────────────────────────────────────────────
+with open("scaler_params.json", "w") as f:
+    json.dump({
+        "mean":     scaler.mean_.tolist(),
+        "std":      scaler.scale_.tolist(),
+        "features": FEATURE_COLS,
+        "moods":    MOODS,
+    }, f, indent=2)
+print(f"✓ scaler_params.json written ({len(FEATURE_COLS)} features)")
 
-print()
-for epoch in range(1, EPOCHS + 1):
-    model.train()
-    total_loss = 0.0
-    for xb, yb in train_loader:
-        optimiser.zero_grad()
-        loss = criterion(model(xb), yb)
-        loss.backward()
-        optimiser.step()
-        total_loss += loss.item() * len(xb)
-    scheduler.step()
+with open("mood_model_rf.pkl", "wb") as f:
+    pickle.dump({"model": rf_final, "le": le, "features": FEATURE_COLS}, f)
+print(f"✓ mood_model_rf.pkl written ({len(FEATURE_COLS)} features)")
 
-    if epoch % 25 == 0:
-        model.eval()
-        correct = 0
-        with torch.no_grad():
-            for xb, yb in test_loader:
-                correct += (model(xb).argmax(1) == yb).sum().item()
-        print(f"Epoch {epoch:3d} | loss {total_loss/len(X_train):.4f} "
-              f"| val acc {correct/len(X_test):.2%}")
-
-# ── 9. Evaluate ───────────────────────────────────────────────────────────────
-model.eval()
-preds, trues = [], []
-with torch.no_grad():
-    for xb, yb in test_loader:
-        preds.extend(model(xb).argmax(1).tolist())
-        trues.extend(yb.tolist())
-
-print("\nClassification report:")
-print(classification_report(trues, preds, target_names=MOODS))
-
-# ── 10. Save weights (.pt) ────────────────────────────────────────────────────
-torch.save(model.state_dict(), "mood_model.pt")
-print("✓ mood_model.pt written")
-
-# Try ONNX export (optional — server.py works with .pt too)
-try:
-    dummy = torch.zeros(1, 8)
-    model.eval()
-    with torch.no_grad():
-        torch.onnx.export(
-            model, (dummy,), "mood_model.onnx",
-            export_params=True, opset_version=11,
-            do_constant_folding=True,
-            input_names=["features"], output_names=["logits"],
-            dynamic_axes={"features": {0: "batch"}, "logits": {0: "batch"}},
-        )
-    print("✓ mood_model.onnx written")
-except Exception:
-    print("  (ONNX export skipped — server.py will use mood_model.pt)")
-
-print("\nDone! Restart server.py to use the new model.")
+# ── 9. Sanity check — model and scaler must agree ─────────────────────────────
+model_n  = len(rf_final.predict_proba(X_test[:1])[0])  # outputs (4 classes)
+scaler_n = len(scaler.mean_)
+assert scaler_n == len(FEATURE_COLS), \
+    f"MISMATCH: scaler has {scaler_n} features but FEATURE_COLS has {len(FEATURE_COLS)}"
+print(f"✓ Sanity check passed: model and scaler both expect {len(FEATURE_COLS)} features")
+print("\nDone! Replace mood_model_rf.pkl and scaler_params.json on your server,")
+print("then restart server.py to use the new model.")
