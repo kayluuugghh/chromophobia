@@ -35,7 +35,7 @@ function Team() {
         <>
             <HelpBtn />
             <div className="teamTitle">
-                <h1>Meet the Team</h1>
+                <h1>THE CHROMOPHOBIA TEAM</h1>
             </div>
 
             <div className="team-container">
