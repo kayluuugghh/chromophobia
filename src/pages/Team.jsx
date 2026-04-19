@@ -73,13 +73,15 @@ function Team() {
                     <>
                     Hi! My name is Drishya Regmi and i’m a computer science major. My contributions to Chromophobia were in frontend and UI design and development. 
                     <br /><br />
-                    Some activities I enjoy include watching movies/shows, painting, reading, and pampering my cat Pixel (our mascot)! I will be continuing my education as a master's student in Data Science this fall 2026.
+                    Some activities I enjoy include watching movies/shows, painting, reading, and pampering my cat Pixel (our mascot)! I will be continuing my education
+                    as a master's student in Data Science this fall 2026.
                     </>
                 }></TeamMember>
                 <TeamMember img={Bea} alt="Bea Gallardo" name="Bea Gallardo" 
                 role={
                     <>
-                    I'm a Computer Science major at University of Houston - Clear Lake. I played a supportive role in Chromophobia's UI/UX and Visualization design and implementation, combining my creative interests with mine and the team's skills in programming. Chromophobia was a valuable experience in combining my skills and my interests. 
+                    I'm a Computer Science major at University of Houston - Clear Lake. I played a supportive role in Chromophobia's UI/UX and Visualization design and 
+                    implementation, combining my creative interests with mine and the team's skills in programming. Chromophobia was a valuable experience in combining my skills and my interests. 
                     <br /><br />
                     My hobbies are writing, drawing, and playing video games. I hope to make my own video games some day, continuing to combine my skills and interests!
                     </>
@@ -87,9 +89,11 @@ function Team() {
                 <TeamMember img={Carlos} alt="Carlos Mendoza" name="Carlos Mendoza" 
                 role={
                     <>
-                    Hey everyone! My name is Carlos Mendoza, an aspiring AI engineer and Computer Science student currently studying at the University of Houston - Clear Lake. I played a part in the AI integration and visualization system for Chromophobia.
+                    Hey everyone! My name is Carlos Mendoza, an aspiring AI engineer and Computer Science student currently studying at the University of Houston - Clear Lake. 
+                    I played a part in the AI integration and visualization system for Chromophobia.
                     <br /><br />
-                    Some of my outside of school hobbies include exercise, video games and reading philosophy. I plan to start a career in the AI industry with a hope of improving as much as possible from here onward.
+                    Some of my outside of school hobbies include exercise, video games and reading philosophy. I plan to start a career in the AI industry with a hope 
+                    of improving as much as possible from here onward.
                     </>
                 }></TeamMember>
                 <TeamMember img={David} alt="David Gebhart" name="David Gebhart" 
@@ -104,7 +108,15 @@ function Team() {
                     </>
                 }></TeamMember>
                 <TeamMember img={Will} alt="Will Pereira" name="Will Pereira" 
-                role="tbd" />
+                role={
+                    <>
+                    My name is William Pereira, and I am a motivated and hardworking college student based in Houston, Texas, with a strong interest 
+                    in technology, cybersecurity, and professional growth. 
+                    <br /><br />
+                    Outside of school and work, I value leadership and personal development. I believe in continuous improvement and strive to become 
+                    the best version of myself each day.
+                    </>
+                }></TeamMember>
             </div>
         </>
     );
