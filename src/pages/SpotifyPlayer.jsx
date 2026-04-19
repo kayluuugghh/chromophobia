@@ -280,7 +280,7 @@ export default function SpotifyPlayer({ token: propToken }) {
 
       {/* ── Canvas ── */}
       <div className="canvas-row">
-        <button onClick={() => window.open('/canvas', '_blank')}>Start Visualization</button>
+        <button onClick={() => window.open('/canvas', '_blank')}>Launch Visualizer</button>
       </div>
     </div>
   );
