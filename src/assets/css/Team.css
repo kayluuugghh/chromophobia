@@ -1,0 +1,120 @@
+@media (prefers-color-scheme: dark) {
+    div.team-container {
+        color: white;
+    }
+    div.teamTitle {
+        color: white;
+    }
+    body {
+        background-image: url(../images/dark.jpg);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        cursor: url(../images/firefly1.png), auto;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    div.team-container {
+        color: black;
+    }
+    div.teamTitle {
+        color: black;
+    }
+    body {
+        background-image: url(../images/light.jpg);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        cursor: url(../images/butterfly.png), auto;
+    }
+}
+
+.team-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 50px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-self: center;
+}
+
+.team-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.flip-card {
+    width: 170px;
+    height: 270px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.flip-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    position: relative;
+}
+
+.flip-card.flipped .flip-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-front, .flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.flip-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    box-shadow: black 0px 2px 4px;
+}
+
+.flip-back {
+    background-color: rgb(193, 193, 193);
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    padding: 10px;
+}
+
+.flip-back h2 {
+    font-size: 0.85rem;
+    margin: 0 0 4px 0;
+    text-align: center;
+}
+
+.flip-back p {
+    font-size: 0.65rem;
+    margin: 0;
+    text-align: center;
+}
+
+.flip-front img:hover {
+    filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+}
+
+.flip-front img:active {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+}
+
+.flip-back:hover {
+    filter: drop-shadow(0 0 5px rgb(255, 255, 255));
+}
+
+.flip-back:active {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.959));
+}
