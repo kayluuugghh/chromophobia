@@ -49,6 +49,8 @@ function HelpBtn() {
                         musical structure to generate visuals that dynamically adapt to the music. The decision to begin 
                         this project was the result of a collaborative brainstorming and voting process for the Senior Project
                         course.
+                        <br></br><br></br>
+                        To learn more about our project, check out our <a href="https://github.com/kayluuugghh/chromophobia" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
                     </p>
                 </div>
             </div>
