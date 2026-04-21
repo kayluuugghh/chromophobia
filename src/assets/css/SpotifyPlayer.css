@@ -124,10 +124,12 @@ div.transport button {
 
 .seek-slider {
   width: 60%;
+  border-radius: 20px;
 }
 
 .volume-slider {
   width: 30%;
+  border-radius: 20px;
 }
 
 div.canvas-row button {
