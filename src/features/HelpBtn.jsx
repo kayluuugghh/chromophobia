@@ -6,8 +6,9 @@ import '../assets/css/HelpBtn.css';
 function HelpBtn() {
     const [isOpen, setMenuOpen] = useState(false);
     const [isAboutOpen, setIsAboutOpen] = useState(false); // modal state
-    const handleHelp = () => {alert("Help coming soon.");};
+    const [isHelpOpen, setIsHelpOpen] = useState(false); // modal state
     const toggleAbout = () => {setIsAboutOpen(!isAboutOpen)};
+    const toggleHelp = () => {setIsHelpOpen(!isHelpOpen)};
     const handleMouseEnter = () => setMenuOpen(true);
     const handleMouseLeave = () => setMenuOpen(false);
 
@@ -33,7 +34,7 @@ function HelpBtn() {
                 </ul>
             </div>
                 {/* Help button */}
-                <button onClick={handleHelp} className="help-btn"><BsQuestionCircle className="help-icon" /></button>
+                <button onClick={toggleHelp} className="help-btn"><BsQuestionCircle className="help-icon" /></button>
         </nav>
         {/* About Modal */}
         {isAboutOpen && (
@@ -48,6 +49,24 @@ function HelpBtn() {
                         musical structure to generate visuals that dynamically adapt to the music. The decision to begin 
                         this project was the result of a collaborative brainstorming and voting process for the Senior Project
                         course.
+                    </p>
+                </div>
+            </div>
+        )}
+        {/* Instructions Modal */}
+        {isHelpOpen && (
+            <div className="modal-overlay" onClick={toggleHelp}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={toggleHelp} className="close-btn">X</button>
+                    <h2>Need Help?</h2>
+                    <p>
+                        If you're having trouble with the application, here are some steps you can take:
+                        <ul id="list">
+                            <li>Ensure you have a stable internet connection.</li>
+                            <li>Try refreshing the page or restarting the application.</li>
+                            <li>Check if your Spotify account is properly linked and has the necessary permissions.</li>
+                            <li>Make sure that you are playing music through this page by checking your device connection on Spotify.</li>
+                        </ul>
                     </p>
                 </div>
             </div>
