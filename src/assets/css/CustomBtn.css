@@ -155,10 +155,11 @@
   div.options button {
     background-color: black;
     color: white;
+    
   }
   div.options select {
-    background-color: white;
-    color: black;
+    background-color: transparent;
+    color: white;
     border: 1px solid currentColor;
     padding: 5px 10px;
     margin: 5px;
@@ -166,7 +167,7 @@
     border-radius: 10px;
   }
   .info-drawer {
-      background: white;
+      background: black;
       color: black;
   }
   .close-x {
