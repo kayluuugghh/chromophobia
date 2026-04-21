@@ -1,4 +1,7 @@
 @media (prefers-color-scheme: dark) {
+  .warning {
+    color: white;
+  }
   .shareAudio {
     background-color: white;
     color: black;
@@ -37,6 +40,9 @@
 }
 
 @media (prefers-color-scheme: light) {
+  .warning {
+    color: black;
+  }
  .shareAudio {
     background-color: black;
     color: white;
@@ -81,6 +87,11 @@ div.options button {
   margin: 5px;
   font-size: 16px;
   border-radius: 10px;
+}
+
+#title {
+  padding-bottom: 0px;
+  margin-bottom: 0px;
 }
 
 .canvasContainer {

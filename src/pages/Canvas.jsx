@@ -1087,6 +1087,11 @@ export default function Canvas() {
           {/* ── Controls ── */}
           {!listening && (
             <div className="initial-setup"> 
+              <div className="warning">
+                <h1 id="title">WARNING:</h1>
+                  <h2>This website contains some images that may cause discomfort 
+                  and trigger seizures.<br></br> Viewer discretion is advised.</h2>
+              </div>
               <button className="shareAudio" onClick={startCapture}>Share screen audio</button>
               <p className="instruction">Click on the button above, then select the tab labeled "chromophobia"</p>
             </div>
