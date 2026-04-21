@@ -49,9 +49,11 @@ Clone the repository:
 git clone https://github.com/kayluuugghh/chromophobia.git
 cd chromophobia
 
+
 Install dependencies:
 
 npm install
+
 
 Configure Environment Variables (Create a .env file in the root directory):
 
@@ -59,9 +61,11 @@ VITE_SPOTIFY_CLIENT_ID=your_id_here
 VITE_SPOTIFY_CLIENT_SECRET=your_secret_id_here
 VITE_REDIRECT_URI=http://localhost:5173/callback
 
+
 Run Development Server:
 
 npm run dev
+
 
 ## Contributors
 Developed by a 7-member team as a Senior Project at the University of Houston - Clear Lake.
