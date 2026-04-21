@@ -110,7 +110,7 @@
     color: black;
   }
   div.options select {
-    background-color: transparent;
+    background-color: black;
     color: white;
     border: 1px solid currentColor;
     padding: 5px 10px;
@@ -159,7 +159,7 @@
   }
   div.options select {
     background-color: transparent;
-    color: black;
+    color: white;
     border: 1px solid currentColor;
     padding: 5px 10px;
     margin: 5px;
@@ -167,7 +167,7 @@
     border-radius: 10px;
   }
   .info-drawer {
-      background: white;
+      background: black;
       color: black;
   }
   .close-x {
