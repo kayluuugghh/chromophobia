@@ -1,16 +1,63 @@
-# React + Vite
+# Chromophobia
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Chromophobia is a web-based, AI-driven music visualizer that bridges the gap between late-90s/early-2000s digital aesthetics and modern machine learning. By leveraging the Spotify Web Playback SDK and WebGL, Chromophobia analyzes musical structures in real-time to generate dynamic, reactive environments.
 
-Currently, two official plugins are available:
+## Core Features
+AI-Powered Audio Analysis: Utilizes machine learning for pattern recognition to identify musical shifts and structural changes.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Real-time Synchronization: Seamlessly integrates with Spotify via the Web Playback SDK for low-latency visual response.
 
-## React Compiler
+Retro-Futuristic Graphics: High-performance 3D visuals built with WebGL that pay homage to classic media player visualizers.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Dynamic Visual Generation: Elements evolve based on the mood, tempo, and frequency spectrum of the track being played
 
-## Expanding the ESLint configuration
+## Tech Stack
+Frontend: React, Vite
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Graphics: Three.js / WebGL / CSS3
+
+Audio Analysis: Meyda (Feature Extraction)
+
+APIs: Spotify Web Playback SDK
+
+Backend: Node.js
+
+Intelligence: Python (AI/ML Logic)
+
+Deployment: Vercel
+
+## Repository Structure
+/src: React components and visualizer logic.
+
+/backend: Node.js server handling authentication and data flow.
+
+/AIModel: Python-based logic for advanced audio pattern recognition.
+
+/public: Static assets and environment configurations.
+
+## Getting Started
+### Prerequisites
+Node.js (v18+)
+
+Spotify Premium account (required for SDK playback)
+
+Spotify Developer Credentials (Client ID & Client Secret)
+
+### Installation
+Clone the repository:
+git clone https://github.com/kayluuugghh/chromophobia.git
+cd chromophobia
+
+Install dependencies:
+npm install
+
+Configure Environment Variables (Create a .env file in the root directory):
+VITE_SPOTIFY_CLIENT_ID=your_id_here
+VITE_SPOTIFY_CLIENT_SECRET=your_secret_id_here
+VITE_REDIRECT_URI=http://localhost:5173/callback
+
+Run Development Server:
+npm run dev
+
+## Contributors
+Developed by a 7-member team as a Senior Project at the University of Houston - Clear Lake.
