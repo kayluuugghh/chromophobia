@@ -1,3 +1,5 @@
+// Contributions to code made by: David Gebhart
+
 import { useEffect, useRef } from 'react'
 import {useNavigate} from 'react-router-dom';
 import { loginWithSpotify } from '../utils/spotifyAuth.js'
