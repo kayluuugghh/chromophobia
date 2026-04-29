@@ -1,4 +1,5 @@
 """
+Contribution to code made by: Carlos Mendoza
 train_mood_model.py
 --------------------
 Trains a Random Forest mood classifier on merged old + new data.

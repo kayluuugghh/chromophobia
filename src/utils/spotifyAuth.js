@@ -1,3 +1,4 @@
+//Contribution to code made by: Carlos Mendoza
 // ─── Config ───────────────────────────────────────────────────────
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;

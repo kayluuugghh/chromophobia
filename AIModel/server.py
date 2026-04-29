@@ -1,4 +1,5 @@
 """
+Contribution to code made by: Carlos Mendoza
 server.py
 ----------
 Uses a calibrated Random Forest (mood_model_rf.pkl) if available.

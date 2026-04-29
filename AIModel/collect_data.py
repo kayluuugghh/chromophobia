@@ -1,4 +1,5 @@
 """
+Contribution to code made by: Carlos Mendoza
 collect_data.py
 ----------------
 Collects labeled mood data from real Meyda audio features.

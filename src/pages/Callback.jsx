@@ -1,3 +1,5 @@
+//Contribution to code made by: Carlos Mendoza
+
 import { useEffect, useState, useRef } from 'react';
 import SpotifyPlayer from './SpotifyPlayer';
 import { loginWithSpotify, getCodeFromUrl, exchangeCodeForToken, getValidToken, logout } from '../utils/spotifyAuth.js';
