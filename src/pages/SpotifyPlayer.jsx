@@ -1,5 +1,5 @@
 //Contribution to code made by: Carlos Mendoza
-
+//Contribution to code made by: Annabelle Marie Lozano
 import { useState, useEffect, useRef, useCallback } from 'react';
 import HelpBtn from '../features/HelpBtn';
 import '../assets/css/SpotifyPlayer.css';

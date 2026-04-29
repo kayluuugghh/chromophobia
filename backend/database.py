@@ -1,3 +1,8 @@
+'''
+Contribution to code made by: Annabelle Marie Lozano
+database.py
+----------------
+'''
 import os
 from datetime import datetime
 from dotenv import load_dotenv

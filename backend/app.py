@@ -1,3 +1,9 @@
+'''
+Contribution to code made by: Annabelle Marie Lozano
+app.py
+----------------
+'''
+
 import os
 from flask import Flask, request, jsonify
 from database import connect_to_database, init_spotify_tokens_collection, upsert_spotify_token, get_spotify_token, list_spotify_tokens, delete_spotify_token

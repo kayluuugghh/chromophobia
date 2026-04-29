@@ -1,3 +1,9 @@
+Contribution to code made by: Annabelle Marie Lozano
+test_db.py
+----------------
+Contribution to code made by: Annabelle Marie Lozano
+__pycache__ folder
+----------------
 Flask>=2.0
 pymongo
 python-dotenv
