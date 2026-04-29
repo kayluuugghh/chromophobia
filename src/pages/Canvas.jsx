@@ -1,4 +1,9 @@
-//Contribution to code made by: Carlos Mendoza
+/*****************************************
+ * 
+ * Contribution to code made by: 
+ * Carlos Mendoza
+ * 
+ *****************************************/
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Meyda from "meyda";

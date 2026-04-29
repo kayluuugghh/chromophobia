@@ -1,3 +1,9 @@
+/*****************************************
+ * 
+ * Contribution to code made by: 
+ * Drishya Regmi
+ * 
+ *****************************************/
 import { useState, useEffect } from 'react';
 import pixel from '../assets/images/pixel.png';
 import '../assets/css/Follower.css';

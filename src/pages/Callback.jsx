@@ -1,4 +1,10 @@
-//Contribution to code made by: Carlos Mendoza
+/*****************************************
+ * 
+ * Contribution to code made by: 
+ * Carlos Mendoza
+ * Kayla Vo
+ * 
+ *****************************************/
 
 import { useEffect, useState, useRef } from 'react';
 import SpotifyPlayer from './SpotifyPlayer';

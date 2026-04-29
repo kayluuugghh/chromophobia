@@ -1,3 +1,10 @@
+/*****************************************
+ * 
+ * Contribution to code made by: 
+ * Drishya Regmi
+ * Kayla Vo
+ * 
+ *****************************************/
 import React, {useState} from "react";
 import '../assets/css/Team.css';
 import HelpBtn from "../features/HelpBtn.jsx";

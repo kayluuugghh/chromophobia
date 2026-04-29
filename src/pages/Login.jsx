@@ -1,5 +1,15 @@
+<<<<<<< HEAD
 // Contributions to code made by: David Gebhart
 
+=======
+/*****************************************
+ * 
+ * Contribution to code made by: 
+ * David Gebhart
+ * Kayla Vo
+ * 
+ *****************************************/
+>>>>>>> fe6d27a (doc: add contribution)
 import { useEffect, useRef } from 'react'
 import {useNavigate} from 'react-router-dom';
 import { loginWithSpotify } from '../utils/spotifyAuth.js'

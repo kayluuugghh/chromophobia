@@ -1,3 +1,10 @@
+/*****************************************
+ * 
+ * Contribution to code made by: 
+ * Drishya Regmi
+ * Kayla Vo
+ * 
+ *****************************************/
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';

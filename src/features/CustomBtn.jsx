@@ -1,3 +1,10 @@
+/*****************************************
+ * 
+ * Contribution to code made by: 
+ * Drishya Regmi
+ * Kayla Vo
+ * 
+ *****************************************/
 import { useState } from "react";
 import { BsBrush } from "react-icons/bs";
 import '../assets/css/CustomBtn.css';

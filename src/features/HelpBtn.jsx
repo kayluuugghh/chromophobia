@@ -1,3 +1,10 @@
+/*****************************************
+ * 
+ * Contribution to code made by: 
+ * Drishya Regmi
+ * Kayla Vo
+ * 
+ *****************************************/
 import { useState } from "react";
 import { BsQuestionCircle } from "react-icons/bs";
 import { Link } from "react-router-dom";
